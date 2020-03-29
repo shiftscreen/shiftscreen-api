@@ -34,8 +34,9 @@ export class UsersResolver {
   async addUser(
     @Args('newUserData') newUserData: NewUserInput,
   ): Promise<User> {
-    const user = await this.usersService.create(newUserData);
-    await this.storagesService.create({ user });
-    return user;
+    const user = Object.assign(new User(), newUserData);
+    const userInstance = await this.usersService.create(user);
+    await this.storagesService.create({ user: userInstance });
+    return userInstance;
   }
 }

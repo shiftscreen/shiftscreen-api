@@ -103,6 +103,7 @@ type Screen {
   createdAt: DateTime!
   updatedAt: DateTime!
   title: String!
+  isActive: Boolean!
   roles: [Role!]
   slides: [Slide!]
 }
@@ -144,6 +145,7 @@ input UpdateRoleInput {
 
 input UpdateScreenInput {
   title: String!
+  isActive: Boolean!
 }
 
 input UpdateSlideInput {

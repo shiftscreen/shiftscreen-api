@@ -29,6 +29,10 @@ export class Screen {
   @Column()
   title: string;
 
+  @Field()
+  @Column({ default: true })
+  isActive: boolean;
+
   @Field(type => [Role], { nullable: true })
   @OneToMany(type => Role, role => role.screen, {
     onDelete: 'CASCADE'
