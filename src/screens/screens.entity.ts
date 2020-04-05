@@ -7,8 +7,8 @@ import {
   OneToMany,
 } from 'typeorm';
 import { Field, ID, ObjectType } from 'type-graphql';
-import { Role } from '../roles/roles.entity';
-import { Slide } from '../slides/slides.entity';
+import { Role } from '../modules/roles/roles.entity';
+import { Slide } from '../modules/slides/slides.entity';
 
 @Entity({ name: 'screens' })
 @ObjectType()

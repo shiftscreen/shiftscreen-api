@@ -4,10 +4,10 @@ import { GraphQLError } from 'graphql';
 
 import { PermissionType } from './enums/permission-type.enum';
 import { UsersService } from '../users/users.service';
-import { ScreensService } from '../screens/screens.service';
-import { GqlAuthGuard } from '../shared/guards/gql-auth.guard';
-import { CurrentUser } from '../shared/decorators/current-user.decorator';
-import { ErrorsMessages } from '../constants';
+import { ScreensService } from '../../screens/screens.service';
+import { GqlAuthGuard } from '../../shared/guards/gql-auth.guard';
+import { CurrentUser } from '../../shared/decorators/current-user.decorator';
+import { ErrorsMessages } from '../../constants';
 
 import { Role } from './roles.entity';
 import { NewRoleInput } from './dto/new-role.input';

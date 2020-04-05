@@ -10,10 +10,10 @@ import {UpdateFileInput} from './dto/update-file.input';
 import {FilesService} from './files.service';
 import {MinioService} from '../minio/minio.service';
 import {StoragesService} from '../storages/storages.service';
-import {CurrentUser} from '../shared/decorators/current-user.decorator';
-import {GqlAuthGuard} from '../shared/guards/gql-auth.guard';
-import {createUniqueFilename, getUserFilePath} from '../shared/utils/file-upload.util';
-import {ErrorsMessages} from '../constants';
+import {CurrentUser} from '../../shared/decorators/current-user.decorator';
+import {GqlAuthGuard} from '../../shared/guards/gql-auth.guard';
+import {createUniqueFilename, getUserFilePath} from '../../shared/utils/file-upload.util';
+import {ErrorsMessages} from '../../constants';
 
 @Resolver(of => File)
 export class FilesResolver {

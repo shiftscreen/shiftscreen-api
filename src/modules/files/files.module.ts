@@ -6,7 +6,7 @@ import { FilesService } from './files.service';
 import { FilesResolver } from './files.resolver';
 
 import { File } from './files.entity';
-import { Upload } from '../shared/scalars/upload.scalar';
+import { Upload } from '../../shared/scalars/upload.scalar';
 import { MinioService } from '../minio/minio.service';
 import { StoragesModule } from '../storages/storages.module';
 import { StoragesService } from '../storages/storages.service';

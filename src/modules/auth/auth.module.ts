@@ -9,7 +9,7 @@ import { AuthResolver } from './auth.resolver';
 import { LocalStrategy } from './local.strategy';
 import { JwtStrategy } from './jwt.strategy';
 
-import jwtConfig from '../config/jwt.config';
+import jwtConfig from '../../config/jwt.config';
 
 @Module({
   imports: [

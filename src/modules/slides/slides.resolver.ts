@@ -7,9 +7,9 @@ import { UpdateSlideInput } from './dto/update-slide.input';
 import { SlidesService } from './slides.service';
 import { RolesService } from '../roles/roles.service';
 import { PermissionType } from '../roles/enums/permission-type.enum';
-import { GqlAuthGuard } from '../shared/guards/gql-auth.guard';
-import { CurrentUser } from '../shared/decorators/current-user.decorator';
-import { ScreensService } from '../screens/screens.service';
+import { GqlAuthGuard } from '../../shared/guards/gql-auth.guard';
+import { CurrentUser } from '../../shared/decorators/current-user.decorator';
+import { ScreensService } from '../../screens/screens.service';
 
 @Resolver(of => Slide)
 export class SlidesResolver {

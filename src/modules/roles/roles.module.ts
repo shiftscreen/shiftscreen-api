@@ -5,8 +5,8 @@ import { RolesService } from './roles.service';
 import { RolesResolver } from './roles.resolver';
 import { Role } from './roles.entity';
 
-import { ScreensModule } from '../screens/screens.module';
-import { ScreensService } from '../screens/screens.service';
+import { ScreensModule } from '../../screens/screens.module';
+import { ScreensService } from '../../screens/screens.service';
 import { UsersModule } from '../users/users.module';
 import { UsersService } from '../users/users.service';
 

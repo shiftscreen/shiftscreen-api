@@ -9,7 +9,7 @@ import {
 import { Field, ID, ObjectType } from 'type-graphql';
 
 import { User } from '../users/users.entity';
-import { Screen } from '../screens/screens.entity';
+import { Screen } from '../../screens/screens.entity';
 import { PermissionType } from './enums/permission-type.enum';
 
 @Entity({ name: 'roles' })

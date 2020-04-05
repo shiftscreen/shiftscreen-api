@@ -3,15 +3,15 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { GraphQLModule } from '@nestjs/graphql';
 
-import { UsersModule } from './users/users.module';
-import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './modules/users/users.module';
+import { AuthModule } from './modules/auth/auth.module';
 
-import { RolesModule } from './roles/roles.module';
+import { RolesModule } from './modules/roles/roles.module';
 import { ScreensModule } from './screens/screens.module';
-import { SlidesModule } from './slides/slides.module';
-import { FilesModule } from './files/files.module';
-import { StoragesModule } from './storages/storages.module';
-import { MinioModule } from './minio/minio.module';
+import { SlidesModule } from './modules/slides/slides.module';
+import { FilesModule } from './modules/files/files.module';
+import { StoragesModule } from './modules/storages/storages.module';
+import { MinioModule } from './modules/minio/minio.module';
 
 import typeormConfig from './config/typeorm.config';
 import graphqlConfig from './config/graphql.config';

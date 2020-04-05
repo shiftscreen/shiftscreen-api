@@ -1,7 +1,7 @@
 import { FileUpload } from 'graphql-upload';
 import { join } from 'lodash';
 
-import { User } from '../../users/users.entity';
+import { User } from '../../modules/users/users.entity';
 
 export const createUniqueFilename = (file: FileUpload): string => {
   const timestamp = new Date().getTime();

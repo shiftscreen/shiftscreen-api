@@ -7,7 +7,7 @@ import {
   ManyToOne,
 } from 'typeorm';
 import { Field, ID, ObjectType } from 'type-graphql';
-import { Screen } from '../screens/screens.entity';
+import { Screen } from '../../screens/screens.entity';
 
 @Entity({ name: 'slides' })
 @ObjectType()

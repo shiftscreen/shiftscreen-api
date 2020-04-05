@@ -11,10 +11,10 @@ import { NewScreenInput } from './dto/new-screen.input';
 import { ScreensService } from './screens.service';
 import { CurrentUser } from '../shared/decorators/current-user.decorator';
 import { GqlAuthGuard } from '../shared/guards/gql-auth.guard';
-import { Role } from '../roles/roles.entity';
-import { PermissionType } from '../roles/enums/permission-type.enum'
-import { RolesService } from '../roles/roles.service';
-import { SlidesService } from '../slides/slides.service';
+import { Role } from '../modules/roles/roles.entity';
+import { PermissionType } from '../modules/roles/enums/permission-type.enum'
+import { RolesService } from '../modules/roles/roles.service';
+import { SlidesService } from '../modules/slides/slides.service';
 import { UpdateScreenInput } from './dto/update-screen.input';
 
 @Resolver(of => Screen)
