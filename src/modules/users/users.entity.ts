@@ -43,6 +43,10 @@ export class User {
   @Column()
   password: string;
 
+  @Field()
+  @Column({ type: 'timestamp' })
+  rulesAcceptedAt: Date;
+
   @Field(type => Storage)
   @OneToOne(type => Storage, storage => storage.user, {
     onDelete: 'CASCADE'

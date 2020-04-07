@@ -34,7 +34,11 @@ export class UsersResolver {
   async addUser(
     @Args('newUserData') newUserData: NewUserInput,
   ): Promise<User> {
-    const user = Object.assign(new User(), newUserData);
+    const user = Object.assign(new User(), {
+      ...newUserData,
+      rulesAcceptedAt: new Date(),
+    });
+
     const userInstance = await this.usersService.create(user);
     await this.storagesService.create({ user: userInstance });
     return userInstance;

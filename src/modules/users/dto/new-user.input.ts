@@ -1,4 +1,4 @@
-import { Length, IsEmail, IsString } from 'class-validator';
+import { Length, IsEmail, IsString, IsBoolean, Equals } from 'class-validator';
 import { Field, InputType } from 'type-graphql';
 import { Upload } from '../../../shared/scalars/upload.scalar';
 import { Exclude } from 'class-transformer';
@@ -25,6 +25,11 @@ export class NewUserInput {
   @IsString()
   @Length(1, 100)
   readonly lastName: string;
+
+  @Field()
+  @IsBoolean()
+  @Equals(true)
+  readonly rulesAccepted: boolean;
 
   @Exclude()
   @Field(type => Upload, { nullable: true })
