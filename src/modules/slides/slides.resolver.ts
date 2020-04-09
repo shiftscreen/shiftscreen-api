@@ -1,15 +1,16 @@
 import { Resolver, Args, Mutation } from '@nestjs/graphql';
 import { ForbiddenException, forwardRef, Inject, UseGuards } from '@nestjs/common';
+import { Int } from 'type-graphql';
+
+import { RolesService } from '../roles/roles.service';
+import { GqlAuthGuard } from '../../shared/guards/gql-auth.guard';
+import { CurrentUser } from '../../shared/decorators/current-user.decorator';
+import { ScreensService } from '../screens/screens.service';
 
 import { Slide } from './slides.entity';
 import { NewSlideInput } from './dto/new-slide.input';
 import { UpdateSlideInput } from './dto/update-slide.input';
 import { SlidesService } from './slides.service';
-import { RolesService } from '../roles/roles.service';
-import { PermissionType } from '../roles/enums/permission-type.enum';
-import { GqlAuthGuard } from '../../shared/guards/gql-auth.guard';
-import { CurrentUser } from '../../shared/decorators/current-user.decorator';
-import { ScreensService } from '../../screens/screens.service';
 
 @Resolver(of => Slide)
 export class SlidesResolver {
@@ -47,7 +48,7 @@ export class SlidesResolver {
   @Mutation(returns => Slide)
   async updateSlide(
     @CurrentUser() user,
-    @Args('id') id: number,
+    @Args({ name: 'id', type: () => Int }) id: number,
     @Args('updateSlideData') updateSlideData: UpdateSlideInput,
   ): Promise<Slide> {
     const slide = await this.slidesService.findOneById(id);
@@ -57,14 +58,14 @@ export class SlidesResolver {
       throw new ForbiddenException();
     }
 
-    return this.slidesService.updateOne(slide, updateSlideData);
+    return this.slidesService.updateOne(slide.id, updateSlideData);
   }
 
   @UseGuards(GqlAuthGuard)
   @Mutation(returns => Boolean)
   async deleteSlide(
     @CurrentUser() user,
-    @Args('id') id: number,
+    @Args({ name: 'id', type: () => Int }) id: number,
   ): Promise<boolean> {
     const slide = await this.slidesService.findOneById(id);
     const currentUserRole = await this.rolesService.findOneUserRole(await user, await slide.screen);

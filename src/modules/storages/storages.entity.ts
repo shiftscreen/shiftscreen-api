@@ -1,34 +1,20 @@
 import {
-  CreateDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
   Column,
   OneToOne,
 } from 'typeorm';
-import { Field, ID, ObjectType } from 'type-graphql';
+import { Field, Int, ObjectType } from 'type-graphql';
 import { User } from '../users/users.entity';
+import { BaseEntity } from '../../shared/base/base.entity';
 
 @Entity({ name: 'storages' })
 @ObjectType()
-export class Storage {
-  @Field(type => ID)
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Field()
-  @CreateDateColumn({ type: 'timestamp' })
-  createdAt: Date;
-
-  @Field()
-  @UpdateDateColumn({ type: 'timestamp' })
-  updatedAt: Date;
-
-  @Field()
+export class Storage extends BaseEntity {
+  @Field(() => Int)
   @Column()
   usedKilobytes: number;
 
-  @Field()
+  @Field(() => Int)
   @Column()
   maxKilobytes: number;
 

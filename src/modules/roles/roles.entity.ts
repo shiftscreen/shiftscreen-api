@@ -1,32 +1,18 @@
 import {
   Entity,
   Column,
-  PrimaryGeneratedColumn,
   ManyToOne,
-  CreateDateColumn,
-  UpdateDateColumn,
 } from 'typeorm';
-import { Field, ID, ObjectType } from 'type-graphql';
+import { Field, ObjectType } from 'type-graphql';
 
 import { User } from '../users/users.entity';
-import { Screen } from '../../screens/screens.entity';
+import { Screen } from '../screens/screens.entity';
 import { PermissionType } from './enums/permission-type.enum';
+import { BaseEntity } from '../../shared/base/base.entity';
 
 @Entity({ name: 'roles' })
 @ObjectType()
-export class Role {
-  @Field(type => ID)
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Field()
-  @CreateDateColumn({ type: 'timestamp' })
-  createdAt: Date;
-
-  @Field()
-  @UpdateDateColumn({ type: 'timestamp' })
-  updatedAt: Date;
-
+export class Role extends BaseEntity {
   @Field(type => PermissionType)
   @Column({
     type: 'enum',

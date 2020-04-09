@@ -1,24 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, UpdateResult } from 'typeorm';
-import { Storage } from './storages.entity';
-import { NewStorageInterface } from './interfaces/new-storage.interface';
 
-import { User } from '../users/users.entity';
+import { Storage } from './storages.entity';
+import { BaseService } from '../../shared/base/base.service';
 
 @Injectable()
-export class StoragesService {
+export class StoragesService extends BaseService<Storage> {
   constructor(
     @InjectRepository(Storage)
     private readonly storagesRepository: Repository<Storage>,
-  ) {}
-
-  async findByUser(user: User): Promise<Storage> {
-    return this.storagesRepository.findOneOrFail({ user });
-  }
-
-  async create(storage: NewStorageInterface): Promise<Storage> {
-    return this.storagesRepository.save(storage);
+  ) {
+    super(storagesRepository);
   }
 
   async increaseUsed(storage: Storage, value: number): Promise<UpdateResult> {

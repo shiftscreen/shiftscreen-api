@@ -2,7 +2,7 @@ import { registerAs } from '@nestjs/config';
 
 import { User } from '../modules/users/users.entity';
 import { Role } from '../modules/roles/roles.entity';
-import { Screen } from '../screens/screens.entity';
+import { Screen } from '../modules/screens/screens.entity';
 import { Slide } from '../modules/slides/slides.entity';
 import { File } from '../modules/files/files.entity';
 import { Storage } from '../modules/storages/storages.entity';

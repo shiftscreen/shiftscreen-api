@@ -1,10 +1,11 @@
 import { Resolver, Args, Mutation } from '@nestjs/graphql';
 import { ForbiddenException, UseGuards } from '@nestjs/common';
 import { GraphQLError } from 'graphql';
+import { Int } from 'type-graphql';
 
 import { PermissionType } from './enums/permission-type.enum';
 import { UsersService } from '../users/users.service';
-import { ScreensService } from '../../screens/screens.service';
+import { ScreensService } from '../screens/screens.service';
 import { GqlAuthGuard } from '../../shared/guards/gql-auth.guard';
 import { CurrentUser } from '../../shared/decorators/current-user.decorator';
 import { ErrorsMessages } from '../../constants';
@@ -62,7 +63,7 @@ export class RolesResolver {
   @Mutation(returns => Role)
   async updateRole(
     @CurrentUser() user,
-    @Args('id') id: number,
+    @Args({ name: 'id', type: () => Int }) id: number,
     @Args('updateRoleData') updateRoleData: UpdateRoleInput,
   ): Promise<Role> {
     const role = await this.rolesService.findOneById(id);
@@ -74,14 +75,14 @@ export class RolesResolver {
       throw new ForbiddenException();
     }
 
-    return this.rolesService.updateOne(role, updateRoleData);
+    return this.rolesService.updateOne(role.id, updateRoleData);
   }
 
   @UseGuards(GqlAuthGuard)
   @Mutation(returns => Boolean)
   async deleteRole(
     @CurrentUser() user,
-    @Args('id') id: number,
+    @Args({ name: 'id', type: () => Int }) id: number,
     @Args('updateRoleData') updateRoleData: UpdateRoleInput,
   ): Promise<boolean> {
     const role = await this.rolesService.findOneById(id);

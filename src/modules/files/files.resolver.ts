@@ -1,19 +1,20 @@
-import {Args, Mutation, Parent, ResolveProperty, Resolver} from '@nestjs/graphql';
-import {ForbiddenException, UseGuards} from '@nestjs/common';
-import {GraphQLError} from 'graphql';
+import { Args, Mutation, Parent, ResolveProperty, Resolver } from '@nestjs/graphql';
+import { ForbiddenException, UseGuards } from '@nestjs/common';
+import { GraphQLError } from 'graphql';
+import { Int } from 'type-graphql';
 import * as streamLength from 'stream-length';
 
-import {File} from './files.entity';
-import {FileLink} from './file-link.entity';
-import {NewFileInput} from './dto/new-file.input';
-import {UpdateFileInput} from './dto/update-file.input';
-import {FilesService} from './files.service';
-import {MinioService} from '../minio/minio.service';
-import {StoragesService} from '../storages/storages.service';
-import {CurrentUser} from '../../shared/decorators/current-user.decorator';
-import {GqlAuthGuard} from '../../shared/guards/gql-auth.guard';
-import {createUniqueFilename, getUserFilePath} from '../../shared/utils/file-upload.util';
-import {ErrorsMessages} from '../../constants';
+import { File } from './files.entity';
+import { FileLink } from './file-link.entity';
+import { NewFileInput } from './dto/new-file.input';
+import { UpdateFileInput } from './dto/update-file.input';
+import { FilesService } from './files.service';
+import { MinioService } from '../minio/minio.service';
+import { StoragesService } from '../storages/storages.service';
+import { CurrentUser } from '../../shared/decorators/current-user.decorator';
+import { GqlAuthGuard } from '../../shared/guards/gql-auth.guard';
+import { createUniqueFilename, getUserFilePath } from '../../shared/utils/file-upload.util';
+import { ErrorsMessages } from '../../constants';
 
 @Resolver(of => File)
 export class FilesResolver {
@@ -21,7 +22,8 @@ export class FilesResolver {
     private readonly filesService: FilesService,
     private readonly storagesService: StoragesService,
     private readonly minioService: MinioService,
-  ) {}
+  ) {
+  }
 
   @UseGuards(GqlAuthGuard)
   @Mutation(returns => File, { nullable: true })
@@ -60,7 +62,7 @@ export class FilesResolver {
   @Mutation(returns => File, { nullable: true })
   async updateFile(
     @CurrentUser() user,
-    @Args('id') id: number,
+    @Args({ name: 'id', type: () => Int }) id: number,
     @Args('updateFileData') updateFileData: UpdateFileInput,
   ): Promise<File> {
     const file = await this.filesService.findOneById(id);
@@ -69,14 +71,14 @@ export class FilesResolver {
       throw new ForbiddenException();
     }
 
-    return this.filesService.updateOne(file, updateFileData);
+    return this.filesService.updateOne(file.id, updateFileData);
   }
 
   @UseGuards(GqlAuthGuard)
   @Mutation(returns => Boolean)
   async deleteFile(
     @CurrentUser() user,
-    @Args('id') id: number,
+    @Args({ name: 'id', type: () => Int }) id: number,
   ): Promise<boolean> {
     const file = await this.filesService.findOneById(id);
     const userIsAuthor = (await file.user).id === (await user).id;
@@ -110,6 +112,6 @@ export class FilesResolver {
     return {
       url,
       expiryTime
-    }
+    };
   }
 }

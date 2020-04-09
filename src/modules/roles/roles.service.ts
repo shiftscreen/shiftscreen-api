@@ -1,42 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {DeleteResult, Repository} from 'typeorm';
+import { Repository } from 'typeorm';
+
+import { BaseService } from '../../shared/base/base.service';
 import { Role } from './roles.entity';
 
 @Injectable()
-export class RolesService {
+export class RolesService extends BaseService<Role> {
   constructor(
     @InjectRepository(Role)
     private readonly rolesRepository: Repository<Role>,
-  ) {}
-
-  async findOneById(id): Promise<Role> {
-    return this.rolesRepository.findOneOrFail(id);
-  }
-
-  async findOneByConditions(conditions): Promise<Role> {
-    return this.rolesRepository.findOne(conditions);
+  ) {
+    super(rolesRepository);
   }
 
   async findOneUserRole(user, screen): Promise<Role> {
     return this.rolesRepository.findOneOrFail({
       user,
       screen
-    })
-  }
-
-  async create(role): Promise<Role> {
-    return this.rolesRepository.save(role);
-  }
-
-  async updateOne(role, data): Promise<Role> {
-    return this.rolesRepository.save({
-      ...role,
-      ...data
     });
-  }
-
-  async deleteOne(role): Promise<DeleteResult> {
-    return this.rolesRepository.delete(role.id);
   }
 }

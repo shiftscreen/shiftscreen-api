@@ -1,31 +1,17 @@
 import {
   Entity,
   Column,
-  PrimaryGeneratedColumn,
   ManyToOne,
-  CreateDateColumn,
-  UpdateDateColumn,
 } from 'typeorm';
-import { Field, ID, ObjectType } from 'type-graphql';
+import { Field, Int, ObjectType } from 'type-graphql';
 
 import { FileLink } from './file-link.entity';
 import { User } from '../users/users.entity';
+import { BaseEntity } from '../../shared/base/base.entity';
 
 @Entity({ name: 'files' })
 @ObjectType()
-export class File {
-  @Field(type => ID)
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Field()
-  @CreateDateColumn({ type: 'timestamp' })
-  createdAt: Date;
-
-  @Field()
-  @UpdateDateColumn({ type: 'timestamp' })
-  updatedAt: Date;
-
+export class File extends BaseEntity {
   @Field()
   @Column()
   title: string;
@@ -38,7 +24,7 @@ export class File {
   @Column()
   mimeType: string;
 
-  @Field()
+  @Field(() => Int)
   @Column()
   sizeBytes: number;
 

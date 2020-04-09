@@ -1,30 +1,17 @@
 import {
-  CreateDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
   Column,
   OneToMany,
 } from 'typeorm';
-import { Field, ID, ObjectType } from 'type-graphql';
-import { Role } from '../modules/roles/roles.entity';
-import { Slide } from '../modules/slides/slides.entity';
+import { Field, ObjectType } from 'type-graphql';
+
+import { Role } from '../roles/roles.entity';
+import { Slide } from '../slides/slides.entity';
+import { BaseEntity } from '../../shared/base/base.entity';
 
 @Entity({ name: 'screens' })
 @ObjectType()
-export class Screen {
-  @Field(type => ID)
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Field()
-  @CreateDateColumn({ type: 'timestamp' })
-  createdAt: Date;
-
-  @Field()
-  @UpdateDateColumn({ type: 'timestamp' })
-  updatedAt: Date;
-
+export class Screen extends BaseEntity {
   @Field()
   @Column()
   title: string;

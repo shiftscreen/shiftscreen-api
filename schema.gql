@@ -3,6 +3,12 @@
 # !!!   DO NOT MODIFY THIS FILE BY YOURSELF   !!!
 # -----------------------------------------------
 
+type BaseEntity {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
 """
 The javascript `Date` as string. Type represents date and time as the ISO Date string.
 """
@@ -15,7 +21,7 @@ type File {
   title: String!
   filename: String!
   mimeType: String!
-  sizeBytes: Float!
+  sizeBytes: Int!
   user: User!
   link: FileLink!
 }
@@ -34,17 +40,17 @@ type Mutation {
   addUser(newUserData: NewUserInput!): User!
   login(loginData: LoginInput!): TokenResponse!
   addRole(newRoleData: NewRoleInput!): Role!
-  updateRole(updateRoleData: UpdateRoleInput!, id: Float!): Role!
-  deleteRole(updateRoleData: UpdateRoleInput!, id: Float!): Boolean!
+  updateRole(updateRoleData: UpdateRoleInput!, id: Int!): Role!
+  deleteRole(updateRoleData: UpdateRoleInput!, id: Int!): Boolean!
   addSlide(newSlideData: NewSlideInput!): Slide!
-  updateSlide(updateSlideData: UpdateSlideInput!, id: Float!): Slide!
-  deleteSlide(id: Float!): Boolean!
+  updateSlide(updateSlideData: UpdateSlideInput!, id: Int!): Slide!
+  deleteSlide(id: Int!): Boolean!
   addScreen(newScreenData: NewScreenInput!): Screen!
-  updateScreen(updateScreenData: UpdateScreenInput!, id: Float!): Screen!
-  deleteScreen(id: Float!): Boolean!
+  updateScreen(updateScreenData: UpdateScreenInput!, id: Int!): Screen!
+  deleteScreen(id: Int!): Boolean!
   addFile(newFileData: NewFileInput!): File
-  updateFile(updateFileData: UpdateFileInput!, id: Float!): File
-  deleteFile(id: Float!): Boolean!
+  updateFile(updateFileData: UpdateFileInput!, id: Int!): File
+  deleteFile(id: Int!): Boolean!
 }
 
 input NewFileInput {
@@ -87,7 +93,7 @@ enum PermissionType {
 type Query {
   viewer: User!
   user(email: String!): User!
-  screen(id: Float!): Screen!
+  screen(id: Int!): Screen!
 }
 
 type Role {
@@ -114,8 +120,8 @@ type Slide {
   createdAt: DateTime!
   updatedAt: DateTime!
   isActive: Boolean!
-  durationMilliseconds: Float!
-  index: Float!
+  durationMilliseconds: Int!
+  index: Int!
   appId: String!
   appVersion: String!
   appConfig: String!
@@ -125,8 +131,8 @@ type Storage {
   id: ID!
   createdAt: DateTime!
   updatedAt: DateTime!
-  usedKilobytes: Float!
-  maxKilobytes: Float!
+  usedKilobytes: Int!
+  maxKilobytes: Int!
   user: User!
 }
 
@@ -137,23 +143,23 @@ type TokenResponse {
 }
 
 input UpdateFileInput {
-  title: String!
+  title: String
 }
 
 input UpdateRoleInput {
-  permissionType: PermissionType!
+  permissionType: PermissionType
 }
 
 input UpdateScreenInput {
-  title: String!
-  isActive: Boolean!
+  title: String
+  isActive: Boolean
 }
 
 input UpdateSlideInput {
-  durationMilliseconds: Float!
-  index: Float!
-  appId: String!
-  appConfig: String!
+  durationMilliseconds: Float
+  index: Float
+  appId: String
+  appConfig: String
 }
 
 """File upload scalar type"""

@@ -1,21 +1,25 @@
-import { IsNumber, IsString, IsJSON } from 'class-validator';
+import { IsNumber, IsString, IsJSON, IsOptional } from 'class-validator';
 import { Field, InputType } from 'type-graphql';
 
 @InputType()
 export class UpdateSlideInput {
-  @Field()
+  @Field({ nullable: true })
+  @IsOptional()
   @IsNumber()
-  readonly durationMilliseconds: number;
+  readonly durationMilliseconds?: number;
 
-  @Field()
+  @Field({ nullable: true })
+  @IsOptional()
   @IsNumber()
-  readonly index: number;
+  readonly index?: number;
 
-  @Field()
+  @Field({ nullable: true })
+  @IsOptional()
   @IsString()
-  readonly appId: string;
+  readonly appId?: string;
 
-  @Field()
+  @Field({ nullable: true })
+  @IsOptional()
   @IsJSON()
-  readonly appConfig: string;
+  readonly appConfig?: string;
 }

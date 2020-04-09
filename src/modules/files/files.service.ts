@@ -1,31 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeleteResult, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
+
+import { BaseService } from '../../shared/base/base.service';
 import { File } from './files.entity';
 
 @Injectable()
-export class FilesService {
+export class FilesService extends BaseService<File> {
   constructor(
     @InjectRepository(File)
     private readonly filesRepository: Repository<File>,
-  ) {}
-
-  async findOneById(id): Promise<File> {
-    return this.filesRepository.findOneOrFail(id);
-  }
-
-  async updateOne(file, data): Promise<File> {
-    return this.filesRepository.save({
-      ...file,
-      ...data
-    });
-  }
-
-  async deleteOne(file): Promise<DeleteResult> {
-    return this.filesRepository.delete(file.id);
-  }
-
-  async create(file): Promise<File> {
-    return this.filesRepository.save(file);
+  ) {
+    super(filesRepository);
   }
 }

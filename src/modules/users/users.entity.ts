@@ -1,33 +1,19 @@
 import {
   Entity,
   Column,
-  PrimaryGeneratedColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
   OneToMany,
   OneToOne,
   JoinColumn,
 } from 'typeorm';
-import { Field, ID, ObjectType } from 'type-graphql';
+import { Field, ObjectType } from 'type-graphql';
 import { Role } from '../roles/roles.entity';
 import { File } from '../files/files.entity';
 import { Storage } from '../storages/storages.entity';
+import { BaseEntity } from '../../shared/base/base.entity';
 
 @Entity({ name: 'users' })
 @ObjectType()
-export class User {
-  @Field(type => ID)
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Field()
-  @CreateDateColumn({ type: 'timestamp' })
-  createdAt: Date;
-
-  @Field()
-  @UpdateDateColumn({ type: 'timestamp' })
-  updatedAt: Date;
-
+export class User extends BaseEntity {
   @Field()
   @Column()
   email: string;

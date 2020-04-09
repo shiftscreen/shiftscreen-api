@@ -1,38 +1,24 @@
 import {
-  CreateDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
   Column,
   ManyToOne,
 } from 'typeorm';
-import { Field, ID, ObjectType } from 'type-graphql';
-import { Screen } from '../../screens/screens.entity';
+import { Field, ID, Int, ObjectType } from 'type-graphql';
+import { Screen } from '../screens/screens.entity';
+import { BaseEntity } from '../../shared/base/base.entity';
 
 @Entity({ name: 'slides' })
 @ObjectType()
-export class Slide {
-  @Field(type => ID)
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Field()
-  @CreateDateColumn({ type: 'timestamp' })
-  createdAt: Date;
-
-  @Field()
-  @UpdateDateColumn({ type: 'timestamp' })
-  updatedAt: Date;
-
+export class Slide extends BaseEntity {
   @Field()
   @Column({ default: true })
   isActive: boolean;
 
-  @Field()
+  @Field(() => Int)
   @Column()
   durationMilliseconds: number;
 
-  @Field()
+  @Field(() => Int)
   @Column()
   index: number;
 

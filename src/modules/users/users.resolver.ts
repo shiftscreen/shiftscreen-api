@@ -27,17 +27,20 @@ export class UsersResolver {
   async user(
     @Args({ name: 'email', type: () => String }) email: string,
   ): Promise<User> {
-    return this.usersService.findOneByEmail(email);
+    return this.usersService.findOneByConditions({ email });
   }
 
   @Mutation(returns => User)
   async addUser(
     @Args('newUserData') newUserData: NewUserInput,
   ): Promise<User> {
-    const user = Object.assign(new User(), {
-      ...newUserData,
-      rulesAcceptedAt: new Date(),
-    });
+    const user = Object.assign(
+      new User(),
+      {
+        ...newUserData,
+        rulesAcceptedAt: new Date(),
+      }
+    );
 
     const userInstance = await this.usersService.create(user);
     await this.storagesService.create({ user: userInstance });
