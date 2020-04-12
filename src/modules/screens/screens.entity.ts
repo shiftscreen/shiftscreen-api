@@ -1,13 +1,14 @@
 import {
   Entity,
   Column,
-  OneToMany,
+  OneToMany, ManyToOne,
 } from 'typeorm';
 import { Field, ObjectType } from 'type-graphql';
 
-import { Role } from '../roles/roles.entity';
 import { Slide } from '../slides/slides.entity';
 import { BaseEntity } from '../../shared/base/base.entity';
+import { Organization } from '../organizations/organizations.entity';
+import { ScreenColor } from './enums/screen-color.enum';
 
 @Entity({ name: 'screens' })
 @ObjectType()
@@ -20,15 +21,25 @@ export class Screen extends BaseEntity {
   @Column({ default: true })
   isActive: boolean;
 
-  @Field(type => [Role], { nullable: true })
-  @OneToMany(type => Role, role => role.screen, {
-    onDelete: 'CASCADE'
+  @Field(type => ScreenColor)
+  @Column({
+    type: 'enum',
+    enum: ScreenColor
   })
-  roles: Promise<Role[]>;
+  color: ScreenColor;
+
+  @Field()
+  @Column()
+  ratio: string;
+
+  @Field(type => Organization)
+  @ManyToOne(type => Organization, organization => organization.roles)
+  organization: Promise<Organization>;
 
   @Field(type => [Slide], { nullable: true })
   @OneToMany(type => Slide, slide => slide.screen, {
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
+    cascade: true,
   })
   slides: Promise<Slide[]>;
 }

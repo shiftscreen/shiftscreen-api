@@ -1,17 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import * as bcrypt from 'bcrypt';
 
-import { User } from './users.entity';
 import { BaseService } from '../../shared/base/base.service';
+import { FileKey } from './files-keys.entity';
 
 @Injectable()
-export class UsersService extends BaseService<User> {
+export class FilesKeysService extends BaseService<FileKey> {
   constructor(
-    @InjectRepository(User)
-    private readonly usersRepository: Repository<User>,
+    @InjectRepository(FileKey)
+    private readonly filesKeysRepository: Repository<FileKey>,
   ) {
-    super(usersRepository);
+    super(filesKeysRepository);
   }
 }

@@ -6,6 +6,12 @@ import {
 import { Field, ID, Int, ObjectType } from 'type-graphql';
 import { Screen } from '../screens/screens.entity';
 import { BaseEntity } from '../../shared/base/base.entity';
+import { SlideTransition } from './interfaces/slide-transition.interface';
+
+import GraphQLJSON from 'graphql-type-json';
+import { SlideTime } from './interfaces/slide-time';
+import { SlideDate } from './interfaces/slide-date';
+import { AppInstance } from '../apps-instances/apps-instances.entity';
 
 @Entity({ name: 'slides' })
 @ObjectType()
@@ -16,23 +22,30 @@ export class Slide extends BaseEntity {
 
   @Field(() => Int)
   @Column()
-  durationMilliseconds: number;
+  index: number;
 
   @Field(() => Int)
   @Column()
-  index: number;
+  durationMilliseconds: number;
 
-  @Field()
-  @Column()
-  appId: string;
+  @Field(type => GraphQLJSON)
+  @Column({ type: 'json' })
+  transition: SlideTransition;
 
-  @Field()
-  @Column()
-  appVersion: string;
+  @Field(type => GraphQLJSON)
+  @Column({ type: 'json' })
+  time: SlideTime;
 
-  @Field()
-  @Column({ length: 5000 })
-  appConfig: string;
+  @Field(type => GraphQLJSON)
+  @Column({ type: 'json' })
+  date: SlideDate;
+
+  @Field(type => GraphQLJSON)
+  @Column({ type: 'json' })
+  weekdays: number[];
+
+  @ManyToOne(type => AppInstance, appInstance => appInstance.slides)
+  appInstance: Promise<AppInstance>;
 
   @ManyToOne(type => Screen, screen => screen.slides)
   screen: Promise<Screen>;

@@ -3,6 +3,17 @@
 # !!!   DO NOT MODIFY THIS FILE BY YOURSELF   !!!
 # -----------------------------------------------
 
+type AppInstance {
+  id: ID!
+  createdAt: DateTime!
+  title: String!
+  appId: String!
+  appVersion: String!
+  config: String!
+  user: User!
+  slides: [Slide!]
+}
+
 type BaseEntity {
   id: ID!
   createdAt: DateTime!
@@ -21,15 +32,33 @@ type File {
   title: String!
   filename: String!
   mimeType: String!
-  sizeBytes: Int!
+  sizeKilobytes: Int!
   user: User!
-  link: FileLink!
+  keys: [FileKey!]
+}
+
+type FileKey {
+  id: ID!
+  createdAt: DateTime!
+  key: String!
+  file: File!
+  user: User!
+}
+
+input FileKeyInput {
+  id: String!
+  key: String!
 }
 
 type FileLink {
   url: String!
   expiryTime: Float!
 }
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
 
 input LoginInput {
   email: String!
@@ -41,16 +70,30 @@ type Mutation {
   login(loginData: LoginInput!): TokenResponse!
   addRole(newRoleData: NewRoleInput!): Role!
   updateRole(updateRoleData: UpdateRoleInput!, id: Int!): Role!
-  deleteRole(updateRoleData: UpdateRoleInput!, id: Int!): Boolean!
+  deleteRole(id: Int!): Boolean!
+  addOrganization(newOrganizationData: NewOrganizationInput!): Organization!
+  updateOrganization(updateOrganizationData: UpdateOrganizationInput!, id: Int!): Organization!
+  deleteOrganization(id: Int!): Boolean!
+  addAppInstance(newAppInstanceData: NewAppInstanceInput!): AppInstance!
+  updateAppInstance(updateAppInstanceData: UpdateAppInstanceInput!, id: String!): AppInstance!
+  deleteAppInstance(id: String!): Boolean!
   addSlide(newSlideData: NewSlideInput!): Slide!
-  updateSlide(updateSlideData: UpdateSlideInput!, id: Int!): Slide!
-  deleteSlide(id: Int!): Boolean!
   addScreen(newScreenData: NewScreenInput!): Screen!
   updateScreen(updateScreenData: UpdateScreenInput!, id: Int!): Screen!
   deleteScreen(id: Int!): Boolean!
   addFile(newFileData: NewFileInput!): File
   updateFile(updateFileData: UpdateFileInput!, id: Int!): File
   deleteFile(id: Int!): Boolean!
+  fileLink(id: Int!): FileLink!
+  addFileKey(newFileKeyData: NewFileKeyInput!): FileKey!
+  deleteFileKey(id: String!): Boolean!
+}
+
+input NewAppInstanceInput {
+  title: String!
+  appId: String!
+  appVersion: String!
+  config: String!
 }
 
 input NewFileInput {
@@ -58,21 +101,35 @@ input NewFileInput {
   file: Upload!
 }
 
+input NewFileKeyInput {
+  fileId: Int!
+}
+
+input NewOrganizationInput {
+  title: String!
+}
+
 input NewRoleInput {
   permissionType: PermissionType!
   userId: Int!
-  screenId: Int!
+  organizationId: Int!
 }
 
 input NewScreenInput {
   title: String!
+  color: ScreenColor!
+  ratio: String!
+  organizationId: Int!
 }
 
 input NewSlideInput {
-  durationMilliseconds: Float!
   index: Float!
-  appId: String!
-  appConfig: String!
+  durationMilliseconds: Float!
+  transition: JSON!
+  time: JSON!
+  date: JSON!
+  weekdays: [Int!]!
+  appInstanceId: String!
   screenId: Float!
 }
 
@@ -85,6 +142,15 @@ input NewUserInput {
   picture: Upload
 }
 
+type Organization {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  title: String!
+  roles: [Role!]
+  screens: [Screen!]
+}
+
 enum PermissionType {
   Admin
   Editor
@@ -94,6 +160,7 @@ type Query {
   viewer: User!
   user(email: String!): User!
   screen(id: Int!): Screen!
+  fileKey(fileKey: FileKeyInput!): FileKey!
 }
 
 type Role {
@@ -102,7 +169,7 @@ type Role {
   updatedAt: DateTime!
   permissionType: PermissionType!
   user: User!
-  screen: Screen!
+  organization: Organization!
 }
 
 type Screen {
@@ -111,8 +178,16 @@ type Screen {
   updatedAt: DateTime!
   title: String!
   isActive: Boolean!
-  roles: [Role!]
+  color: ScreenColor!
+  ratio: String!
+  organization: Organization!
   slides: [Slide!]
+}
+
+enum ScreenColor {
+  RED
+  GREEN
+  BLUE
 }
 
 type Slide {
@@ -120,11 +195,12 @@ type Slide {
   createdAt: DateTime!
   updatedAt: DateTime!
   isActive: Boolean!
-  durationMilliseconds: Int!
   index: Int!
-  appId: String!
-  appVersion: String!
-  appConfig: String!
+  durationMilliseconds: Int!
+  transition: JSON!
+  time: JSON!
+  date: JSON!
+  weekdays: [JSON!]!
 }
 
 type Storage {
@@ -142,8 +218,18 @@ type TokenResponse {
   expiresIn: String!
 }
 
+input UpdateAppInstanceInput {
+  title: String
+  appVersion: String
+  config: String
+}
+
 input UpdateFileInput {
   title: String
+}
+
+input UpdateOrganizationInput {
+  title: String!
 }
 
 input UpdateRoleInput {
@@ -153,13 +239,6 @@ input UpdateRoleInput {
 input UpdateScreenInput {
   title: String
   isActive: Boolean
-}
-
-input UpdateSlideInput {
-  durationMilliseconds: Float
-  index: Float
-  appId: String
-  appConfig: String
 }
 
 """File upload scalar type"""
@@ -176,4 +255,5 @@ type User {
   storage: Storage!
   roles: [Role!]
   files: [File!]
+  appsInstances: [AppInstance!]
 }

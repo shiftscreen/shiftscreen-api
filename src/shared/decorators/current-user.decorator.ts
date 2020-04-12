@@ -1,5 +1,5 @@
-import { createParamDecorator } from '@nestjs/common';
+import { createParamDecorator, UnauthorizedException } from '@nestjs/common';
 
 export const CurrentUser = createParamDecorator(
-  (data, [root, args, ctx, info]) => ctx.req.user,
+  async (data, [root, args, ctx, info]) => await ctx.req.user,
 );

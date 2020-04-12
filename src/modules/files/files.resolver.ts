@@ -15,6 +15,7 @@ import { CurrentUser } from '../../shared/decorators/current-user.decorator';
 import { GqlAuthGuard } from '../../shared/guards/gql-auth.guard';
 import { createUniqueFilename, getUserFilePath } from '../../shared/utils/file-upload.util';
 import { ErrorsMessages } from '../../constants';
+import { createEntityInstance } from '../../shared/utils/create-entity-instance.util';
 
 @Resolver(of => File)
 export class FilesResolver {
@@ -33,7 +34,7 @@ export class FilesResolver {
   ): Promise<File> {
     const newFile = await newFileData.file;
     const fileSize = await streamLength(newFile.createReadStream());
-    const fileSizeKilobytes = fileSize / 1000;
+    const fileSizeKilobytes = Math.round(fileSize / 1000);
     const filename = createUniqueFilename(newFile);
     const filePath = getUserFilePath(await user, filename);
 
@@ -45,16 +46,19 @@ export class FilesResolver {
       throw new GraphQLError(ErrorsMessages.NOT_ENOUGH_SPACE);
     }
 
-    await this.minioService.uploadFileToFilePath(newFile, filePath);
-    await this.storagesService.increaseUsed(userStorage, fileSizeKilobytes);
+    await Promise.all([
+      this.minioService.uploadFileToFilePath(newFile, filePath),
+      this.storagesService.increaseUsed(userStorage, fileSizeKilobytes),
+    ]);
 
-    const file = new File();
-    file.title = newFileData.title;
-    file.mimeType = newFile.mimetype;
-    file.filename = filename;
-    file.sizeBytes = fileSize;
-    file.user = user;
-
+    const fileData: Partial<File> = {
+      title: newFileData.title,
+      mimeType: newFile.mimetype,
+      sizeKilobytes: fileSizeKilobytes,
+      filename,
+      user,
+    };
+    const file = createEntityInstance<File>(File, fileData);
     return this.filesService.create(file);
   }
 
@@ -67,6 +71,7 @@ export class FilesResolver {
   ): Promise<File> {
     const file = await this.filesService.findOneById(id);
     const userIsAuthor = (await file.user).id === (await user).id;
+
     if (!userIsAuthor) {
       throw new ForbiddenException();
     }
@@ -90,19 +95,24 @@ export class FilesResolver {
     await this.minioService.deleteFileFromFilePath(filePath);
 
     const userStorage = await user.storage;
-    const fileSizeKilobytes = file.sizeBytes / 1000;
-    await this.storagesService.decreaseUsed(userStorage, fileSizeKilobytes);
+    await this.storagesService.decreaseUsed(userStorage, file.sizeKilobytes);
 
-    const deleteResults = await this.filesService.deleteOne(file);
+    const deleteResults = await this.filesService.deleteOne(file.id);
     return deleteResults.affected && deleteResults.affected > 0;
   }
 
   @UseGuards(GqlAuthGuard)
-  @ResolveProperty(returns => FileLink)
-  async link(
-    @Parent() file: File,
+  @Mutation(returns => FileLink)
+  async fileLink(
+    @Args({ name: 'id', type: () => Int }) id: number,
     @CurrentUser() user,
   ): Promise<FileLink> {
+    const file = await this.filesService.findOneById(id);
+    const userIsAuthor = (await file.user).id === (await user).id;
+    if (!userIsAuthor) {
+      throw new ForbiddenException();
+    }
+
     const { filename } = file;
     const filePath = getUserFilePath(await user, filename);
 

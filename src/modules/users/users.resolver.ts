@@ -8,6 +8,7 @@ import { User } from './users.entity';
 import { NewUserInput } from './dto/new-user.input';
 import { UsersService } from './users.service';
 import { StoragesService } from '../storages/storages.service';
+import { createEntityInstance } from '../../shared/utils/create-entity-instance.util';
 
 @Resolver(of => User)
 export class UsersResolver {
@@ -34,16 +35,16 @@ export class UsersResolver {
   async addUser(
     @Args('newUserData') newUserData: NewUserInput,
   ): Promise<User> {
-    const user = Object.assign(
-      new User(),
-      {
-        ...newUserData,
-        rulesAcceptedAt: new Date(),
-      }
-    );
+    const userData: Partial<User> = {
+      ...newUserData,
+      rulesAcceptedAt: new Date(),
+    };
+
+    const user = createEntityInstance<User>(User, userData);
+    await user.hashPassword();
 
     const userInstance = await this.usersService.create(user);
-    await this.storagesService.create({ user: userInstance });
+    await this.storagesService.create({ userInstance });
     return userInstance;
   }
 }

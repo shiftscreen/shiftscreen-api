@@ -16,11 +16,11 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async validateUser(email: string, password: string): Promise<any> {
+  async validateUser(email: string, password: string): Promise<User | null> {
     const user = await this.usersService.findOneByConditions({ email });
-    if (user && await this.usersService.compareHash(password, user.password)) {
-      const { password, ...result } = user;
-      return result;
+    if (user && await user.compareHash(password)) {
+      user.hidePassword();
+      return user;
     }
     return null;
   }

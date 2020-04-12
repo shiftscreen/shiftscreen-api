@@ -1,11 +1,11 @@
 import {
   Entity,
   Column,
-  ManyToOne,
+  ManyToOne, OneToMany,
 } from 'typeorm';
 import { Field, Int, ObjectType } from 'type-graphql';
 
-import { FileLink } from './file-link.entity';
+import { FileKey } from '../files-keys/files-keys.entity';
 import { User } from '../users/users.entity';
 import { BaseEntity } from '../../shared/base/base.entity';
 
@@ -26,12 +26,15 @@ export class File extends BaseEntity {
 
   @Field(() => Int)
   @Column()
-  sizeBytes: number;
+  sizeKilobytes: number;
 
   @Field(type => User)
   @ManyToOne(type => User, user => user.files)
   user: Promise<User>;
 
-  @Field(type => FileLink)
-  link: FileLink;
+  @Field(type => [FileKey], { nullable: true })
+  @OneToMany(type => FileKey, key => key.file, {
+    onDelete: 'CASCADE'
+  })
+  keys: Promise<FileKey[]>;
 }

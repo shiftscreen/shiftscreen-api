@@ -1,6 +1,5 @@
 import { Resolver, Args, Mutation } from '@nestjs/graphql';
-import { ForbiddenException, forwardRef, Inject, UseGuards } from '@nestjs/common';
-import { Int } from 'type-graphql';
+import { ForbiddenException, UseGuards } from '@nestjs/common';
 
 import { RolesService } from '../roles/roles.service';
 import { GqlAuthGuard } from '../../shared/guards/gql-auth.guard';
@@ -9,72 +8,46 @@ import { ScreensService } from '../screens/screens.service';
 
 import { Slide } from './slides.entity';
 import { NewSlideInput } from './dto/new-slide.input';
-import { UpdateSlideInput } from './dto/update-slide.input';
 import { SlidesService } from './slides.service';
+import { AppsInstancesService } from '../apps-instances/apps-instances.service';
+import { createEntityInstance } from '../../shared/utils/create-entity-instance.util';
 
+@UseGuards(GqlAuthGuard)
 @Resolver(of => Slide)
 export class SlidesResolver {
   constructor(
     private readonly slidesService: SlidesService,
 
-    @Inject(forwardRef(() => ScreensService))
     private readonly screensService: ScreensService,
-
-    @Inject(forwardRef(() => RolesService))
     private readonly rolesService: RolesService,
+    private readonly appsInstancesService: AppsInstancesService,
   ) {}
 
-  @UseGuards(GqlAuthGuard)
   @Mutation(returns => Slide)
   async addSlide(
     @CurrentUser() user,
     @Args('newSlideData') newSlideData: NewSlideInput,
   ): Promise<Slide> {
-    const screen = await this.screensService.findOneById(newSlideData.screenId);
-    const currentUserRole = await this.rolesService.findOneUserRole(await user, screen);
+    const [screen, appInstance] = await Promise.all([
+      this.screensService.findOneById(newSlideData.screenId),
+      this.appsInstancesService.findOneById(newSlideData.appInstanceId)
+    ]);
 
-    if (!currentUserRole) {
+    const [currentUserRole, appInstanceUser] = await Promise.all([
+      await this.rolesService.findOneUserRole(user, await screen.organization),
+      await appInstance.user,
+    ]);
+
+    if (appInstanceUser !== user || !currentUserRole.isAdmin()) {
       throw new ForbiddenException();
     }
 
-    let slide = new Slide();
-    slide = Object.assign(slide, newSlideData);
-    slide.screen = Promise.resolve(screen);
-
+    const slideData: Partial<Slide> = {
+      ...newSlideData,
+      appInstance: Promise.resolve(appInstance),
+      screen: Promise.resolve(screen)
+    };
+    const slide = createEntityInstance<Slide>(Slide, slideData);
     return this.slidesService.create(slide);
-  }
-
-  @UseGuards(GqlAuthGuard)
-  @Mutation(returns => Slide)
-  async updateSlide(
-    @CurrentUser() user,
-    @Args({ name: 'id', type: () => Int }) id: number,
-    @Args('updateSlideData') updateSlideData: UpdateSlideInput,
-  ): Promise<Slide> {
-    const slide = await this.slidesService.findOneById(id);
-    const currentUserRole = await this.rolesService.findOneUserRole(await user, await slide.screen);
-
-    if (!currentUserRole) {
-      throw new ForbiddenException();
-    }
-
-    return this.slidesService.updateOne(slide.id, updateSlideData);
-  }
-
-  @UseGuards(GqlAuthGuard)
-  @Mutation(returns => Boolean)
-  async deleteSlide(
-    @CurrentUser() user,
-    @Args({ name: 'id', type: () => Int }) id: number,
-  ): Promise<boolean> {
-    const slide = await this.slidesService.findOneById(id);
-    const currentUserRole = await this.rolesService.findOneUserRole(await user, await slide.screen);
-
-    if (!currentUserRole) {
-      throw new ForbiddenException();
-    }
-
-    const deleteResults = await this.slidesService.deleteOne(slide);
-    return deleteResults.affected && deleteResults.affected > 0;
   }
 }

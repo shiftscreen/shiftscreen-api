@@ -5,7 +5,7 @@ import { Int } from 'type-graphql';
 
 import { PermissionType } from './enums/permission-type.enum';
 import { UsersService } from '../users/users.service';
-import { ScreensService } from '../screens/screens.service';
+import { OrganizationsService } from '../organizations/organizations.service';
 import { GqlAuthGuard } from '../../shared/guards/gql-auth.guard';
 import { CurrentUser } from '../../shared/decorators/current-user.decorator';
 import { ErrorsMessages } from '../../constants';
@@ -14,44 +14,46 @@ import { Role } from './roles.entity';
 import { NewRoleInput } from './dto/new-role.input';
 import { UpdateRoleInput } from './dto/update-role.input';
 import { RolesService } from './roles.service';
+import { createEntityInstance } from '../../shared/utils/create-entity-instance.util';
 
+@UseGuards(GqlAuthGuard)
 @Resolver(of => Role)
 export class RolesResolver {
   constructor(
     private readonly rolesService: RolesService,
     private readonly usersService: UsersService,
-    private readonly screensService: ScreensService,
+    private readonly organizationsService: OrganizationsService,
   ) {}
 
-  @UseGuards(GqlAuthGuard)
   @Mutation(returns => Role)
   async addRole(
     @CurrentUser() user,
     @Args('newRoleData') newRoleData: NewRoleInput,
   ): Promise<Role> {
-    const { permissionType } = newRoleData;
-    const roleScreen = await this.screensService.findOneById(newRoleData.screenId);
-    const roleUser = await this.usersService.findOneById(newRoleData.userId);
-    const currentUserRole = await this.rolesService.findOneUserRole(await user, roleScreen);
+    const [roleOrganization, roleUser] = await Promise.all([
+      this.organizationsService.findOneById(newRoleData.organizationId),
+      this.usersService.findOneById(newRoleData.userId),
+    ]);
 
-    const userIsNotAdmin = !currentUserRole || currentUserRole.permissionType !== PermissionType.Admin;
-    if (userIsNotAdmin) {
+    const currentUserRole = await this.rolesService.findOneUserRole(user, roleOrganization);
+
+    if (!currentUserRole.isAdmin()) {
       throw new ForbiddenException();
     }
 
-    const role = new Role();
-    role.permissionType = permissionType;
-    role.user = Promise.resolve(roleUser);
-    role.screen = Promise.resolve(roleScreen);
+    const roleData: Partial<Role> = {
+      permissionType: newRoleData.permissionType,
+      user: Promise.resolve(roleUser),
+      organization: Promise.resolve(roleOrganization),
+    };
+
+    const role = createEntityInstance<Role>(Role, roleData);
 
     const roleExists = await this.rolesService.findOneByConditions({
-      user: {
-        id: newRoleData.userId
-      },
-      screen: {
-        id: newRoleData.screenId,
-      },
+      user: { id: newRoleData.userId },
+      organization: { id: newRoleData.organizationId },
     });
+
     if (roleExists) {
       throw new GraphQLError(ErrorsMessages.ROLE_EXISTS);
     }
@@ -59,7 +61,6 @@ export class RolesResolver {
     return this.rolesService.create(role);
   }
 
-  @UseGuards(GqlAuthGuard)
   @Mutation(returns => Role)
   async updateRole(
     @CurrentUser() user,
@@ -67,34 +68,35 @@ export class RolesResolver {
     @Args('updateRoleData') updateRoleData: UpdateRoleInput,
   ): Promise<Role> {
     const role = await this.rolesService.findOneById(id);
-    const roleScreen = await role.screen;
-    const currentUserRole = await this.rolesService.findOneUserRole(await user, await roleScreen);
+    const currentUserRole = await this.rolesService.findOneUserRole(await user, await role.organization);
 
-    const userIsNotAdmin = !currentUserRole || currentUserRole.permissionType !== PermissionType.Admin;
-    if (userIsNotAdmin) {
+    if ((await role.user) !== (await user) || !currentUserRole.isAdmin()) {
       throw new ForbiddenException();
     }
 
     return this.rolesService.updateOne(role.id, updateRoleData);
   }
 
-  @UseGuards(GqlAuthGuard)
   @Mutation(returns => Boolean)
   async deleteRole(
     @CurrentUser() user,
     @Args({ name: 'id', type: () => Int }) id: number,
-    @Args('updateRoleData') updateRoleData: UpdateRoleInput,
   ): Promise<boolean> {
     const role = await this.rolesService.findOneById(id);
-    const roleScreen = await role.screen;
-    const currentUserRole = await this.rolesService.findOneUserRole(await user, await roleScreen);
+    const currentUserRole = await this.rolesService.findOneUserRole(await user, await role.organization);
 
-    const userIsNotAdmin = !currentUserRole || currentUserRole.permissionType !== PermissionType.Admin;
-    if (userIsNotAdmin) {
+    if ((await role.user) !== user || !currentUserRole.isAdmin()) {
       throw new ForbiddenException();
     }
 
-    const deleteResults = await this.rolesService.deleteOne(role);
+    const roles = (await (await role.organization).roles);
+    const adminRoles = roles.filter((role: Role) => role.isAdmin());
+    const lastAdminRole = adminRoles.length === 1;
+    if (lastAdminRole) {
+      throw new GraphQLError(ErrorsMessages.LAST_ADMIN_ROLE);
+    }
+
+    const deleteResults = await this.organizationsService.deleteOne(role.id);
     return deleteResults.affected && deleteResults.affected > 0;
   }
 }

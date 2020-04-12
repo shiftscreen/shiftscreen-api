@@ -11,9 +11,14 @@ import { File } from '../files/files.entity';
 import { Storage } from '../storages/storages.entity';
 import { BaseEntity } from '../../shared/base/base.entity';
 
+import * as bcrypt from 'bcrypt';
+import { AppInstance } from '../apps-instances/apps-instances.entity';
+
 @Entity({ name: 'users' })
 @ObjectType()
 export class User extends BaseEntity {
+  private saltRounds = 10;
+
   @Field()
   @Column()
   email: string;
@@ -30,7 +35,7 @@ export class User extends BaseEntity {
   password: string;
 
   @Field()
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'datetime' })
   rulesAcceptedAt: Date;
 
   @Field(type => Storage)
@@ -51,4 +56,22 @@ export class User extends BaseEntity {
     onDelete: 'CASCADE'
   })
   files: Promise<File[]>;
+
+  @Field(type => [AppInstance], { nullable: true })
+  @OneToMany(type => AppInstance, appInstance => appInstance.user, {
+    onDelete: 'CASCADE'
+  })
+  appsInstances: Promise<AppInstance[]>;
+
+  async hashPassword(): Promise<void> {
+    this.password = await bcrypt.hash(this.password, this.saltRounds);
+  }
+
+  hidePassword(): void {
+    this.password = undefined;
+  }
+
+  async compareHash(password: string | undefined): Promise<boolean> {
+    return bcrypt.compare(password, this.password);
+  }
 }

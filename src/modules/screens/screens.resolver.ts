@@ -18,7 +18,10 @@ import { Screen } from './screens.entity';
 import { NewScreenInput } from './dto/new-screen.input';
 import { ScreensService } from './screens.service';
 import { UpdateScreenInput } from './dto/update-screen.input';
+import { OrganizationsService } from '../organizations/organizations.service';
+import { createEntityInstance } from '../../shared/utils/create-entity-instance.util';
 
+@UseGuards(GqlAuthGuard)
 @Resolver(of => Screen)
 export class ScreensResolver {
   constructor(
@@ -27,43 +30,48 @@ export class ScreensResolver {
 
     @Inject(forwardRef(() => RolesService))
     private readonly rolesService: RolesService,
+
+    @Inject(forwardRef(() => OrganizationsService))
+    private readonly organizationsService: OrganizationsService,
   ) {}
 
-  @UseGuards(GqlAuthGuard)
   @Query(returns => Screen)
   async screen(
     @CurrentUser() user,
     @Args({ name: 'id', type: () => Int }) id: number,
   ): Promise<Screen> {
     const screen = await this.screensService.findOneById(id);
-    const currentUserRole = await this.rolesService.findOneUserRole(await user, screen);
+    const currentUserRole = await this.rolesService.findOneUserRole(user, await screen.organization);
 
-    const userIsNotAdmin = !currentUserRole || currentUserRole.permissionType !== PermissionType.Admin;
-    if (userIsNotAdmin) {
+    if (!currentUserRole) {
       throw new ForbiddenException();
     }
 
     return screen;
   }
 
-  @UseGuards(GqlAuthGuard)
   @Mutation(returns => Screen)
   async addScreen(
     @CurrentUser() user,
     @Args('newScreenData') newScreenData: NewScreenInput,
   ): Promise<Screen> {
-    const screen = await this.screensService.create(newScreenData);
+    const organization = await this.organizationsService.findOneById(newScreenData.organizationId);
+    const currentUserRole = await this.rolesService.findOneUserRole(user, organization);
 
-    const role = new Role();
-    role.permissionType = PermissionType.Admin;
-    role.user = user;
-    role.screen = Promise.resolve(screen);
+    if (!currentUserRole.isAdmin()) {
+      throw new ForbiddenException();
+    }
 
-    await this.rolesService.create(await role);
-    return screen;
+    const screenData: Partial<Screen> = {
+      ...newScreenData,
+      organization: Promise.resolve(organization),
+    };
+
+    const screen = createEntityInstance<Screen>(Screen, screenData);
+
+    return this.screensService.create(screen);
   }
 
-  @UseGuards(GqlAuthGuard)
   @Mutation(returns => Screen)
   async updateScreen(
     @CurrentUser() user,
@@ -71,31 +79,28 @@ export class ScreensResolver {
     @Args('updateScreenData') updateScreenData: UpdateScreenInput,
   ): Promise<Screen> {
     const screen = await this.screensService.findOneById(id);
-    const currentUserRole = await this.rolesService.findOneUserRole(await user, await screen);
+    const currentUserRole = await this.rolesService.findOneUserRole(user, await screen.organization);
 
-    const userIsNotAdmin = !currentUserRole || currentUserRole.permissionType !== PermissionType.Admin;
-    if (userIsNotAdmin) {
+    if (!currentUserRole.isAdmin()) {
       throw new ForbiddenException();
     }
 
     return this.screensService.updateOne(screen.id, updateScreenData);
   }
 
-  @UseGuards(GqlAuthGuard)
   @Mutation(returns => Boolean)
   async deleteScreen(
     @CurrentUser() user,
     @Args({ name: 'id', type: () => Int }) id: number,
   ): Promise<boolean> {
     const screen = await this.screensService.findOneById(id);
-    const currentUserRole = await this.rolesService.findOneUserRole(await user, await screen);
+    const currentUserRole = await this.rolesService.findOneUserRole(user, await screen.organization);
 
-    const userIsNotAdmin = !currentUserRole || currentUserRole.permissionType !== PermissionType.Admin;
-    if (userIsNotAdmin) {
+    if (!currentUserRole.isAdmin()) {
       throw new ForbiddenException();
     }
 
     const deleteResults = await this.screensService.deleteOne(screen.id);
-    return deleteResults.affected && deleteResults.affected > 0;
+    return deleteResults.affected && deleteResults.affected > 1;
   }
 }

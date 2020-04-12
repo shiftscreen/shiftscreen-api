@@ -4,6 +4,8 @@ import { Repository } from 'typeorm';
 
 import { BaseService } from '../../shared/base/base.service';
 import { Role } from './roles.entity';
+import { User } from '../users/users.entity';
+import { Organization } from '../organizations/organizations.entity';
 
 @Injectable()
 export class RolesService extends BaseService<Role> {
@@ -14,10 +16,10 @@ export class RolesService extends BaseService<Role> {
     super(rolesRepository);
   }
 
-  async findOneUserRole(user, screen): Promise<Role> {
+  async findOneUserRole(user: User, organization: Organization): Promise<Role> {
     return this.rolesRepository.findOneOrFail({
-      user,
-      screen
+      user: Promise.resolve({ id: user.id }),
+      organization: Promise.resolve({ id: organization }),
     });
   }
 }

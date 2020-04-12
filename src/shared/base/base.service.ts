@@ -30,7 +30,7 @@ export class BaseService<T> implements IBaseService<T> {
     return this.genericRepository.findOneOrFail(id);
   }
 
-  async deleteOne(id): Promise<DeleteResult> {
+  async deleteOne(id: string | number): Promise<DeleteResult> {
     return this.genericRepository.delete(id);
   }
 }

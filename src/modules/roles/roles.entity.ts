@@ -6,9 +6,9 @@ import {
 import { Field, ObjectType } from 'type-graphql';
 
 import { User } from '../users/users.entity';
-import { Screen } from '../screens/screens.entity';
 import { PermissionType } from './enums/permission-type.enum';
 import { BaseEntity } from '../../shared/base/base.entity';
+import { Organization } from '../organizations/organizations.entity';
 
 @Entity({ name: 'roles' })
 @ObjectType()
@@ -24,7 +24,11 @@ export class Role extends BaseEntity {
   @ManyToOne(type => User, user => user.roles)
   user: Promise<User>;
 
-  @Field(type => Screen)
-  @ManyToOne(type => Screen, screen => screen.roles)
-  screen: Promise<Screen>;
+  @Field(type => Organization)
+  @ManyToOne(type => Organization, organization => organization.roles)
+  organization: Promise<Organization>;
+
+  public isAdmin(): boolean {
+    return this.permissionType !== PermissionType.Admin;
+  }
 }

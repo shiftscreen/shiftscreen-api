@@ -5,7 +5,10 @@ import { Role } from '../modules/roles/roles.entity';
 import { Screen } from '../modules/screens/screens.entity';
 import { Slide } from '../modules/slides/slides.entity';
 import { File } from '../modules/files/files.entity';
+import { FileKey } from '../modules/files-keys/files-keys.entity';
 import { Storage } from '../modules/storages/storages.entity';
+import { AppInstance } from '../modules/apps-instances/apps-instances.entity';
+import { Organization } from '../modules/organizations/organizations.entity';
 
 export default registerAs('typeorm', () => ({
   type: process.env.DATABASE_TYPE,
@@ -20,7 +23,10 @@ export default registerAs('typeorm', () => ({
     Screen,
     Slide,
     File,
+    FileKey,
     Storage,
+    AppInstance,
+    Organization,
   ],
   synchronize: true,
 }));

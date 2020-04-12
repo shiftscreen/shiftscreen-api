@@ -14,5 +14,5 @@ export class NewRoleInput {
 
   @Field(type => Int)
   @IsNumber()
-  readonly screenId: number;
+  readonly organizationId: number;
 }
