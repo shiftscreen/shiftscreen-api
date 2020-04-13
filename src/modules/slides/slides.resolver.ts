@@ -29,8 +29,8 @@ export class SlidesResolver {
     @Args('newSlideData') newSlideData: NewSlideInput,
   ): Promise<Slide> {
     const [screen, appInstance] = await Promise.all([
-      this.screensService.findOneById(newSlideData.screenId),
-      this.appsInstancesService.findOneById(newSlideData.appInstanceId)
+      this.screensService.findOneByIdWithRelations(newSlideData.screenId, ['organization']),
+      this.appsInstancesService.findOneByIdWithRelations(newSlideData.appInstanceId, ['user'])
     ]);
 
     const [currentUserRole, appInstanceUser] = await Promise.all([

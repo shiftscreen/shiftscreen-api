@@ -20,7 +20,7 @@ export class User extends BaseEntity {
   private saltRounds = 10;
 
   @Field()
-  @Column()
+  @Column({ unique: true })
   email: string;
 
   @Field()
@@ -35,12 +35,12 @@ export class User extends BaseEntity {
   password: string;
 
   @Field()
-  @Column({ type: 'datetime' })
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   rulesAcceptedAt: Date;
 
   @Field(type => Storage)
   @OneToOne(type => Storage, storage => storage.user, {
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   })
   @JoinColumn()
   storage: Promise<Storage>;
@@ -63,12 +63,12 @@ export class User extends BaseEntity {
   })
   appsInstances: Promise<AppInstance[]>;
 
-  async hashPassword(): Promise<void> {
-    this.password = await bcrypt.hash(this.password, this.saltRounds);
-  }
-
   hidePassword(): void {
     this.password = undefined;
+  }
+
+  async hashPassword(): Promise<void> {
+    this.password = await bcrypt.hash(this.password, this.saltRounds);
   }
 
   async compareHash(password: string | undefined): Promise<boolean> {

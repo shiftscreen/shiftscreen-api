@@ -35,16 +35,11 @@ export class UsersResolver {
   async addUser(
     @Args('newUserData') newUserData: NewUserInput,
   ): Promise<User> {
-    const userData: Partial<User> = {
-      ...newUserData,
-      rulesAcceptedAt: new Date(),
-    };
-
-    const user = createEntityInstance<User>(User, userData);
+    const user = createEntityInstance<User>(User, newUserData);
     await user.hashPassword();
 
     const userInstance = await this.usersService.create(user);
-    await this.storagesService.create({ userInstance });
+    await this.storagesService.create({ user: userInstance });
     return userInstance;
   }
 }

@@ -31,9 +31,7 @@ export class AppsInstancesResolver {
       ...newAppInstanceData,
       user,
     };
-
     const appInstance = createEntityInstance<AppInstance>(AppInstance, appInstanceData);
-
     return this.appsInstancesService.create(appInstance);
   }
 
@@ -43,7 +41,7 @@ export class AppsInstancesResolver {
     @Args('id') id: string,
     @Args('updateAppInstanceData') updateAppInstanceData: UpdateAppInstanceInput,
   ): Promise<AppInstance> {
-    const appInstance = await this.appsInstancesService.findOneById(id);
+    const appInstance = await this.appsInstancesService.findOneByIdWithRelations(id, ['user']);
 
     if (await appInstance.user !== user) {
       throw new ForbiddenException();
@@ -57,7 +55,7 @@ export class AppsInstancesResolver {
     @CurrentUser() user,
     @Args('id') id: string,
   ): Promise<boolean> {
-    const appInstance = await this.appsInstancesService.findOneById(id);
+    const appInstance = await this.appsInstancesService.findOneByIdWithRelations(id, ['user']);
 
     if (await appInstance.user !== user) {
       throw new ForbiddenException();

@@ -16,10 +16,7 @@ export class RolesService extends BaseService<Role> {
     super(rolesRepository);
   }
 
-  async findOneUserRole(user: User, organization: Organization): Promise<Role> {
-    return this.rolesRepository.findOneOrFail({
-      user: Promise.resolve({ id: user.id }),
-      organization: Promise.resolve({ id: organization }),
-    });
+  async findOneUserRole(user: Partial<User>, organization: Partial<Organization>): Promise<Role> {
+    return this.findOneByConditions({ user, organization })
   }
 }

@@ -36,7 +36,7 @@ export class FilesResolver {
     const fileSize = await streamLength(newFile.createReadStream());
     const fileSizeKilobytes = Math.round(fileSize / 1000);
     const filename = createUniqueFilename(newFile);
-    const filePath = getUserFilePath(await user, filename);
+    const filePath = getUserFilePath(user, filename);
 
     const userStorage = await user.storage;
     const storageUsedAfterUpload = userStorage.usedKilobytes + fileSizeKilobytes;
@@ -69,8 +69,8 @@ export class FilesResolver {
     @Args({ name: 'id', type: () => Int }) id: number,
     @Args('updateFileData') updateFileData: UpdateFileInput,
   ): Promise<File> {
-    const file = await this.filesService.findOneById(id);
-    const userIsAuthor = (await file.user).id === (await user).id;
+    const file = await this.filesService.findOneByIdWithRelations(id, ['user']);
+    const userIsAuthor = (await file.user).id === user.id;
 
     if (!userIsAuthor) {
       throw new ForbiddenException();
@@ -85,13 +85,13 @@ export class FilesResolver {
     @CurrentUser() user,
     @Args({ name: 'id', type: () => Int }) id: number,
   ): Promise<boolean> {
-    const file = await this.filesService.findOneById(id);
-    const userIsAuthor = (await file.user).id === (await user).id;
+    const file = await this.filesService.findOneByIdWithRelations(id, ['user']);
+    const userIsAuthor = (await file.user).id === user.id;
     if (!userIsAuthor) {
       throw new ForbiddenException();
     }
 
-    const filePath = getUserFilePath(await user, file.filename);
+    const filePath = getUserFilePath(user, file.filename);
     await this.minioService.deleteFileFromFilePath(filePath);
 
     const userStorage = await user.storage;
@@ -107,8 +107,8 @@ export class FilesResolver {
     @Args({ name: 'id', type: () => Int }) id: number,
     @CurrentUser() user,
   ): Promise<FileLink> {
-    const file = await this.filesService.findOneById(id);
-    const userIsAuthor = (await file.user).id === (await user).id;
+    const file = await this.filesService.findOneByIdWithRelations(id, ['user']);
+    const userIsAuthor = (await file.user).id === user.id;
     if (!userIsAuthor) {
       throw new ForbiddenException();
     }

@@ -27,12 +27,10 @@ export class ScreensResolver {
   constructor(
     private readonly screensService: ScreensService,
     private readonly slidesService: SlidesService,
+    private readonly organizationsService: OrganizationsService,
 
     @Inject(forwardRef(() => RolesService))
     private readonly rolesService: RolesService,
-
-    @Inject(forwardRef(() => OrganizationsService))
-    private readonly organizationsService: OrganizationsService,
   ) {}
 
   @Query(returns => Screen)
@@ -40,7 +38,7 @@ export class ScreensResolver {
     @CurrentUser() user,
     @Args({ name: 'id', type: () => Int }) id: number,
   ): Promise<Screen> {
-    const screen = await this.screensService.findOneById(id);
+    const screen = await this.screensService.findOneByIdWithRelations(id, ['organization']);
     const currentUserRole = await this.rolesService.findOneUserRole(user, await screen.organization);
 
     if (!currentUserRole) {
@@ -55,8 +53,10 @@ export class ScreensResolver {
     @CurrentUser() user,
     @Args('newScreenData') newScreenData: NewScreenInput,
   ): Promise<Screen> {
-    const organization = await this.organizationsService.findOneById(newScreenData.organizationId);
-    const currentUserRole = await this.rolesService.findOneUserRole(user, organization);
+    const [organization, currentUserRole] = await Promise.all([
+      this.organizationsService.findOneById(newScreenData.organizationId),
+      this.rolesService.findOneUserRole(user, { id: newScreenData.organizationId })
+    ]);
 
     if (!currentUserRole.isAdmin()) {
       throw new ForbiddenException();
@@ -66,9 +66,7 @@ export class ScreensResolver {
       ...newScreenData,
       organization: Promise.resolve(organization),
     };
-
     const screen = createEntityInstance<Screen>(Screen, screenData);
-
     return this.screensService.create(screen);
   }
 
@@ -78,7 +76,7 @@ export class ScreensResolver {
     @Args({ name: 'id', type: () => Int }) id: number,
     @Args('updateScreenData') updateScreenData: UpdateScreenInput,
   ): Promise<Screen> {
-    const screen = await this.screensService.findOneById(id);
+    const screen = await this.screensService.findOneByIdWithRelations(id, ['organization']);
     const currentUserRole = await this.rolesService.findOneUserRole(user, await screen.organization);
 
     if (!currentUserRole.isAdmin()) {
@@ -93,7 +91,7 @@ export class ScreensResolver {
     @CurrentUser() user,
     @Args({ name: 'id', type: () => Int }) id: number,
   ): Promise<boolean> {
-    const screen = await this.screensService.findOneById(id);
+    const screen = await this.screensService.findOneByIdWithRelations(id, ['organization']);
     const currentUserRole = await this.rolesService.findOneUserRole(user, await screen.organization);
 
     if (!currentUserRole.isAdmin()) {

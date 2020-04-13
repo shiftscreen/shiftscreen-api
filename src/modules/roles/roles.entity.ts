@@ -29,6 +29,6 @@ export class Role extends BaseEntity {
   organization: Promise<Organization>;
 
   public isAdmin(): boolean {
-    return this.permissionType !== PermissionType.Admin;
+    return this.permissionType === PermissionType.Admin;
   }
 }

@@ -25,6 +25,13 @@ export class BaseService<T> implements IBaseService<T> {
     return this.genericRepository.findOne(conditions);
   }
 
+  async findOneByIdWithRelations(id: string | number, relations: string[]): Promise<T> {
+    return this.findOneByConditions({
+      where: { id },
+      relations: ['organization']
+    });
+  }
+
   async updateOne(id: string | number, entity): Promise<T> {
     await this.genericRepository.update(id, entity);
     return this.genericRepository.findOneOrFail(id);

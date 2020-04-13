@@ -13,6 +13,7 @@ import { FileKeyInput } from './dto/file-key.input';
 import { FilesKeysService } from './files-keys.service';
 import { createEntityInstance } from '../../shared/utils/create-entity-instance.util';
 
+@UseGuards(GqlAuthGuard)
 @Resolver(of => FileKey)
 export class FilesKeysResolver {
   constructor(
@@ -20,29 +21,24 @@ export class FilesKeysResolver {
     private readonly filesService: FilesService,
   ) {}
 
-  @UseGuards(GqlAuthGuard)
   @Query(returns => FileKey)
   async fileKey(
     @CurrentUser() user,
     @Args('fileKey') fileKeyInput: FileKeyInput,
   ): Promise<FileKey> {
-    const fileKey = await this.filesKeysService.findOneByConditions(fileKeyInput);
-
-    if (!fileKey) {
-      throw new ForbiddenException();
-    }
-
-    return fileKey;
+    return this.filesKeysService.findOneByConditions(fileKeyInput);
   }
 
-  @UseGuards(GqlAuthGuard)
   @Mutation(returns => FileKey)
   async addFileKey(
     @CurrentUser() user,
     @Args('newFileKeyData') newFileKeyData: NewFileKeyInput,
   ): Promise<FileKey> {
-    const file = await this.filesService.findOneById(newFileKeyData.fileId);
-    const userIsAuthor = (await file.user).id === (await user).id;
+    const file = await this.filesService.findOneByIdWithRelations(
+      newFileKeyData.fileId,
+      ['user']
+    );
+    const userIsAuthor = (await file.user).id === user.id;
 
     if (!userIsAuthor) {
       throw new ForbiddenException();
@@ -52,20 +48,17 @@ export class FilesKeysResolver {
       key: randomString.generate(32),
       file: Promise.resolve(file),
     };
-
     const fileKey = createEntityInstance<FileKey>(FileKey, fileKeyData);
-
     return this.filesKeysService.create(fileKey);
   }
 
-  @UseGuards(GqlAuthGuard)
   @Mutation(returns => Boolean)
   async deleteFileKey(
     @CurrentUser() user,
     @Args( 'id') id: string,
   ): Promise<boolean> {
-    const fileKey = await this.filesKeysService.findOneById(id);
-    const userIsAuthor = (await fileKey.user).id === (await user).id;
+    const fileKey = await this.filesKeysService.findOneByIdWithRelations(id, ['user']);
+    const userIsAuthor = (await fileKey.user).id === user.id;
 
     if (!userIsAuthor) {
       throw new ForbiddenException();

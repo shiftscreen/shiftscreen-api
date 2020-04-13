@@ -22,7 +22,7 @@ export class FileKey {
   createdAt: Date;
 
   @Field()
-  @Column()
+  @Column({ length: 32 })
   key: string;
 
   @Field(type => File)
