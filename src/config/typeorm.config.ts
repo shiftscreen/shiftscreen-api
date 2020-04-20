@@ -29,4 +29,5 @@ export default registerAs('typeorm', () => ({
     Organization,
   ],
   synchronize: true,
+  logging: process.env.NODE_ENV !== 'production'
 }));

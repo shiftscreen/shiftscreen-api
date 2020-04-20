@@ -4,5 +4,5 @@ export interface IBaseService<T> {
   updateOne(id: string | number, entity: any): Promise<T>;
   findOneByConditions(conditions: any): Promise<T>;
   create(entity: any): Promise<T>;
-  deleteOne(id: string | number);
+  deleteOneById(id: string | number);
 }

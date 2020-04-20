@@ -1,12 +1,22 @@
-import { IsNumber, IsString, IsJSON, Matches, IsUUID, IsOptional } from 'class-validator';
+import { IsNumber, IsBoolean, IsJSON, Matches, IsOptional, IsUUID, IsString } from 'class-validator';
 import { Field, InputType, Int } from 'type-graphql';
+import GraphQLJSON from 'graphql-type-json';
+
 import { SlideTransition } from '../interfaces/slide-transition.interface';
 import { SlideTime } from '../interfaces/slide-time';
 import { SlideDate } from '../interfaces/slide-date';
-import GraphQLJSON from 'graphql-type-json';
 
 @InputType()
-export class NewSlideInput {
+export class SlideInput {
+  @Field(() => Int, { nullable: true })
+  @IsOptional()
+  @IsNumber()
+  readonly id?: number;
+
+  @Field()
+  @IsBoolean()
+  readonly isActive: boolean;
+
   @Field(type => Int)
   @IsNumber()
   readonly index: number;
@@ -35,11 +45,8 @@ export class NewSlideInput {
   @Matches(/^\[([0-6],?){0,7}]$/)
   readonly weekdays: string;
 
-  @Field()
+  @Field(type => Int, { nullable: true })
+  @IsOptional()
   @IsNumber()
-  readonly appInstanceId: number;
-
-  @Field(type => Int)
-  @IsNumber()
-  readonly screenId: number;
+  readonly appInstanceId?: number;
 }

@@ -9,6 +9,10 @@ export class BaseService<T> implements IBaseService<T> {
     private readonly genericRepository: Repository<T>,
   ) {}
 
+  async saveOne(object: T): Promise<T> {
+    return this.genericRepository.save(object);
+  }
+
   async create(entity): Promise<T> {
     return this.genericRepository.save(entity);
   }
@@ -28,7 +32,7 @@ export class BaseService<T> implements IBaseService<T> {
   async findOneByIdWithRelations(id: string | number, relations: string[]): Promise<T> {
     return this.findOneByConditions({
       where: { id },
-      relations: ['organization']
+      relations
     });
   }
 
@@ -37,7 +41,11 @@ export class BaseService<T> implements IBaseService<T> {
     return this.genericRepository.findOneOrFail(id);
   }
 
-  async deleteOne(id: string | number): Promise<DeleteResult> {
+  async deleteOneById(id: string | number): Promise<DeleteResult> {
     return this.genericRepository.delete(id);
+  }
+
+  async deleteManyByIds(ids: string[] | number[]): Promise<DeleteResult> {
+    return this.genericRepository.delete(ids);
   }
 }

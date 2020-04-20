@@ -96,7 +96,7 @@ export class RolesResolver {
       throw new GraphQLError(ErrorsMessages.LAST_ADMIN_ROLE);
     }
 
-    const deleteResults = await this.organizationsService.deleteOne(role.id);
+    const deleteResults = await this.organizationsService.deleteOneById(role.id);
     return deleteResults.affected && deleteResults.affected > 0;
   }
 }

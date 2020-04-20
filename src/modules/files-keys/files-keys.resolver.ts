@@ -8,12 +8,10 @@ import { CurrentUser } from '../../shared/decorators/current-user.decorator';
 import { FilesService } from '../files/files.service';
 
 import { FileKey } from './files-keys.entity';
-import { NewFileKeyInput } from './dto/new-file-key.input';
 import { FileKeyInput } from './dto/file-key.input';
 import { FilesKeysService } from './files-keys.service';
 import { createEntityInstance } from '../../shared/utils/create-entity-instance.util';
 
-@UseGuards(GqlAuthGuard)
 @Resolver(of => FileKey)
 export class FilesKeysResolver {
   constructor(
@@ -23,21 +21,18 @@ export class FilesKeysResolver {
 
   @Query(returns => FileKey)
   async fileKey(
-    @CurrentUser() user,
     @Args('fileKey') fileKeyInput: FileKeyInput,
   ): Promise<FileKey> {
     return this.filesKeysService.findOneByConditions(fileKeyInput);
   }
 
+  @UseGuards(GqlAuthGuard)
   @Mutation(returns => FileKey)
   async addFileKey(
     @CurrentUser() user,
-    @Args('newFileKeyData') newFileKeyData: NewFileKeyInput,
+    @Args({ name: 'fileId', type: () => Int }) fileId: number,
   ): Promise<FileKey> {
-    const file = await this.filesService.findOneByIdWithRelations(
-      newFileKeyData.fileId,
-      ['user']
-    );
+    const file = await this.filesService.findOneByIdWithRelations(fileId, ['user']);
     const userIsAuthor = (await file.user).id === user.id;
 
     if (!userIsAuthor) {
@@ -52,6 +47,7 @@ export class FilesKeysResolver {
     return this.filesKeysService.create(fileKey);
   }
 
+  @UseGuards(GqlAuthGuard)
   @Mutation(returns => Boolean)
   async deleteFileKey(
     @CurrentUser() user,
@@ -64,7 +60,7 @@ export class FilesKeysResolver {
       throw new ForbiddenException();
     }
 
-    const deleteResults = await this.filesKeysService.deleteOne(fileKey.id);
+    const deleteResults = await this.filesKeysService.deleteOneById(fileKey.id);
     return deleteResults.affected && deleteResults.affected > 0;
   }
 }

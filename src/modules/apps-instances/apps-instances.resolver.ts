@@ -38,7 +38,7 @@ export class AppsInstancesResolver {
   @Mutation(returns => AppInstance)
   async updateAppInstance(
     @CurrentUser() user,
-    @Args('id') id: string,
+    @Args({ name: 'id', type: () => Int }) id: number,
     @Args('updateAppInstanceData') updateAppInstanceData: UpdateAppInstanceInput,
   ): Promise<AppInstance> {
     const appInstance = await this.appsInstancesService.findOneByIdWithRelations(id, ['user']);
@@ -53,7 +53,7 @@ export class AppsInstancesResolver {
   @Mutation(returns => Boolean)
   async deleteAppInstance(
     @CurrentUser() user,
-    @Args('id') id: string,
+    @Args({ name: 'id', type: () => Int }) id: number,
   ): Promise<boolean> {
     const appInstance = await this.appsInstancesService.findOneByIdWithRelations(id, ['user']);
 
@@ -61,7 +61,7 @@ export class AppsInstancesResolver {
       throw new ForbiddenException();
     }
 
-    const deleteResults = await this.appsInstancesService.deleteOne(appInstance.id);
+    const deleteResults = await this.appsInstancesService.deleteOneById(appInstance.id);
     return deleteResults.affected && deleteResults.affected > 0;
   }
 }

@@ -8,7 +8,7 @@ import { IMinioService } from './interfaces/minio-service.interface'
 @Injectable()
 export class MinioService implements IMinioService {
   public readonly expiryTime = 60 * 15; // 15 MINUTES
-  private readonly bucketName = 'powerdashboard';
+  private readonly bucketName = 'shiftscreen';
   private minioClient: Minio.Client;
 
   constructor(
@@ -19,7 +19,7 @@ export class MinioService implements IMinioService {
   }
 
   private async initBucket(): Promise<void> {
-    const exists = this.minioClient.bucketExists(this.bucketName);
+    const exists = await this.minioClient.bucketExists(this.bucketName);
     if (!exists) {
       await this.minioClient.makeBucket(this.bucketName, '');
     }

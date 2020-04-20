@@ -97,24 +97,17 @@ export class FilesResolver {
     const userStorage = await user.storage;
     await this.storagesService.decreaseUsed(userStorage, file.sizeKilobytes);
 
-    const deleteResults = await this.filesService.deleteOne(file.id);
+    const deleteResults = await this.filesService.deleteOneById(file.id);
     return deleteResults.affected && deleteResults.affected > 0;
   }
 
-  @UseGuards(GqlAuthGuard)
-  @Mutation(returns => FileLink)
-  async fileLink(
-    @Args({ name: 'id', type: () => Int }) id: number,
+  @ResolveProperty(returns => FileLink)
+  async link(
+    @Parent() file: File,
     @CurrentUser() user,
   ): Promise<FileLink> {
-    const file = await this.filesService.findOneByIdWithRelations(id, ['user']);
-    const userIsAuthor = (await file.user).id === user.id;
-    if (!userIsAuthor) {
-      throw new ForbiddenException();
-    }
-
     const { filename } = file;
-    const filePath = getUserFilePath(await user, filename);
+    const filePath = getUserFilePath(await file.user, filename);
 
     const { expiryTime } = this.minioService;
     const url = await this.minioService.getPresignedUrl(filePath);
@@ -122,6 +115,6 @@ export class FilesResolver {
     return {
       url,
       expiryTime
-    };
+    }
   }
 }

@@ -1,9 +1,9 @@
 import {
   Entity,
   Column,
-  ManyToOne,
+  ManyToOne, JoinColumn,
 } from 'typeorm';
-import { Field, ID, Int, ObjectType } from 'type-graphql';
+import { Field, ID, InputType, Int, ObjectType } from 'type-graphql';
 import { Screen } from '../screens/screens.entity';
 import { BaseEntity } from '../../shared/base/base.entity';
 import { SlideTransition } from './interfaces/slide-transition.interface';
@@ -28,25 +28,33 @@ export class Slide extends BaseEntity {
   @Column()
   durationMilliseconds: number;
 
-  @Field(type => GraphQLJSON)
-  @Column({ type: 'json' })
-  transition: SlideTransition;
+  @Field(type => GraphQLJSON, { nullable: true })
+  @Column({ type: 'json', nullable: true })
+  transition?: SlideTransition;
 
-  @Field(type => GraphQLJSON)
-  @Column({ type: 'json' })
-  time: SlideTime;
+  @Field(type => GraphQLJSON, { nullable: true })
+  @Column({ type: 'json', nullable: true })
+  time?: SlideTime;
 
-  @Field(type => GraphQLJSON)
-  @Column({ type: 'json' })
-  date: SlideDate;
+  @Field(type => GraphQLJSON, { nullable: true })
+  @Column({ type: 'json', nullable: true })
+  date?: SlideDate;
 
-  @Field(type => GraphQLJSON)
-  @Column({ type: 'json' })
-  weekdays: number[];
+  @Field(type => GraphQLJSON, { defaultValue: '[]' })
+  @Column({ type: 'json', nullable: true })
+  weekdays: string;
 
+  @Column()
+  appInstanceId: number;
+
+  @Field(type => AppInstance)
   @ManyToOne(type => AppInstance, appInstance => appInstance.slides)
+  @JoinColumn({ name: 'appInstanceId' })
   appInstance: Promise<AppInstance>;
 
-  @ManyToOne(type => Screen, screen => screen.slides)
+  @ManyToOne(type => Screen,screen => screen.slides, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   screen: Promise<Screen>;
 }

@@ -9,18 +9,11 @@ import { Field, ID, Int, ObjectType } from 'type-graphql';
 
 import { User } from '../users/users.entity';
 import { Slide } from '../slides/slides.entity';
+import { BaseEntity } from '../../shared/base/base.entity';
 
 @Entity({ name: 'apps_instances' })
 @ObjectType()
-export class AppInstance {
-  @Field(type => ID)
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
-  @Field()
-  @CreateDateColumn({ type: 'timestamp' })
-  createdAt: Date;
-
+export class AppInstance extends BaseEntity {
   @Field()
   @Column()
   title: string;
@@ -42,6 +35,8 @@ export class AppInstance {
   user: Promise<User>;
 
   @Field(type => [Slide], { nullable: true })
-  @OneToMany(type => Slide, slide => slide.appInstance)
+  @OneToMany(type => Slide, slide => slide.appInstance, {
+    onDelete: 'CASCADE'
+  })
   slides: Promise<Slide[]>;
 }

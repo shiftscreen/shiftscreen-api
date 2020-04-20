@@ -1,5 +1,5 @@
-import { Query, Resolver, Args, Mutation } from '@nestjs/graphql';
-import { UseGuards } from '@nestjs/common';
+import { Query, Resolver, Args, Mutation, ResolveProperty, Parent } from '@nestjs/graphql';
+import { ForbiddenException, UseGuards } from '@nestjs/common';
 
 import { GqlAuthGuard } from '../../shared/guards/gql-auth.guard';
 import { CurrentUser } from '../../shared/decorators/current-user.decorator';
@@ -9,6 +9,9 @@ import { NewUserInput } from './dto/new-user.input';
 import { UsersService } from './users.service';
 import { StoragesService } from '../storages/storages.service';
 import { createEntityInstance } from '../../shared/utils/create-entity-instance.util';
+import { getUserFilePath } from '../../shared/utils/file-upload.util';
+import { FileLink } from '../files/file-link.entity';
+import { File } from '../files/files.entity';
 
 @Resolver(of => User)
 export class UsersResolver {
@@ -41,5 +44,18 @@ export class UsersResolver {
     const userInstance = await this.usersService.create(user);
     await this.storagesService.create({ user: userInstance });
     return userInstance;
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @ResolveProperty(returns => [File])
+  async files(
+    @Parent() user: User,
+    @CurrentUser() currentUser: User,
+  ): Promise<File[]> {
+    if (!currentUser || user.id !== currentUser.id) {
+      throw new ForbiddenException();
+    }
+
+    return user.files;
   }
 }

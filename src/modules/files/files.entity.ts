@@ -8,6 +8,7 @@ import { Field, Int, ObjectType } from 'type-graphql';
 import { FileKey } from '../files-keys/files-keys.entity';
 import { User } from '../users/users.entity';
 import { BaseEntity } from '../../shared/base/base.entity';
+import { FileLink } from './file-link.entity';
 
 @Entity({ name: 'files' })
 @ObjectType()
@@ -37,4 +38,7 @@ export class File extends BaseEntity {
     onDelete: 'CASCADE'
   })
   keys: Promise<FileKey[]>;
+
+  @Field(type => FileLink)
+  link: FileLink;
 }

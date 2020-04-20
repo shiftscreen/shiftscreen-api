@@ -69,8 +69,8 @@ export class OrganizationsResolver {
       throw new ForbiddenException();
     }
 
-    await this.rolesService.deleteOne(currentUserRole.id);
-    const deleteResults = await this.organizationsService.deleteOne(organization.id);
+    await this.rolesService.deleteOneById(currentUserRole.id);
+    const deleteResults = await this.organizationsService.deleteOneById(organization.id);
     return deleteResults.affected && deleteResults.affected > 0;
   }
 }

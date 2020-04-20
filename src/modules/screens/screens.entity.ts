@@ -39,7 +39,7 @@ export class Screen extends BaseEntity {
   @Field(type => [Slide], { nullable: true })
   @OneToMany(type => Slide, slide => slide.screen, {
     onDelete: 'CASCADE',
-    cascade: true,
+    onUpdate: 'CASCADE',
   })
   slides: Promise<Slide[]>;
 }

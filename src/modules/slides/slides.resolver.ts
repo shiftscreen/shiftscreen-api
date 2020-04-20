@@ -1,5 +1,5 @@
 import { Resolver, Args, Mutation } from '@nestjs/graphql';
-import { ForbiddenException, UseGuards } from '@nestjs/common';
+import { ForbiddenException, forwardRef, Inject, UseGuards } from '@nestjs/common';
 
 import { RolesService } from '../roles/roles.service';
 import { GqlAuthGuard } from '../../shared/guards/gql-auth.guard';
@@ -17,10 +17,11 @@ import { createEntityInstance } from '../../shared/utils/create-entity-instance.
 export class SlidesResolver {
   constructor(
     private readonly slidesService: SlidesService,
-
-    private readonly screensService: ScreensService,
     private readonly rolesService: RolesService,
     private readonly appsInstancesService: AppsInstancesService,
+
+    @Inject(forwardRef(() => ScreensService))
+    private readonly screensService: ScreensService,
   ) {}
 
   @Mutation(returns => Slide)
@@ -38,7 +39,7 @@ export class SlidesResolver {
       await appInstance.user,
     ]);
 
-    if (appInstanceUser !== user || !currentUserRole.isAdmin()) {
+    if (appInstanceUser.id !== user.id || !currentUserRole.isAdmin()) {
       throw new ForbiddenException();
     }
 

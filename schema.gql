@@ -6,6 +6,7 @@
 type AppInstance {
   id: ID!
   createdAt: DateTime!
+  updatedAt: DateTime!
   title: String!
   appId: String!
   appVersion: String!
@@ -35,6 +36,7 @@ type File {
   sizeKilobytes: Int!
   user: User!
   keys: [FileKey!]
+  link: FileLink!
 }
 
 type FileKey {
@@ -75,8 +77,8 @@ type Mutation {
   updateOrganization(updateOrganizationData: UpdateOrganizationInput!, id: Int!): Organization!
   deleteOrganization(id: Int!): Boolean!
   addAppInstance(newAppInstanceData: NewAppInstanceInput!): AppInstance!
-  updateAppInstance(updateAppInstanceData: UpdateAppInstanceInput!, id: String!): AppInstance!
-  deleteAppInstance(id: String!): Boolean!
+  updateAppInstance(updateAppInstanceData: UpdateAppInstanceInput!, id: Int!): AppInstance!
+  deleteAppInstance(id: Int!): Boolean!
   addSlide(newSlideData: NewSlideInput!): Slide!
   addScreen(newScreenData: NewScreenInput!): Screen!
   updateScreen(updateScreenData: UpdateScreenInput!, id: Int!): Screen!
@@ -84,8 +86,7 @@ type Mutation {
   addFile(newFileData: NewFileInput!): File
   updateFile(updateFileData: UpdateFileInput!, id: Int!): File
   deleteFile(id: Int!): Boolean!
-  fileLink(id: Int!): FileLink!
-  addFileKey(newFileKeyData: NewFileKeyInput!): FileKey!
+  addFileKey(fileId: Int!): FileKey!
   deleteFileKey(id: String!): Boolean!
 }
 
@@ -99,10 +100,6 @@ input NewAppInstanceInput {
 input NewFileInput {
   title: String!
   file: Upload!
-}
-
-input NewFileKeyInput {
-  fileId: Int!
 }
 
 input NewOrganizationInput {
@@ -123,14 +120,14 @@ input NewScreenInput {
 }
 
 input NewSlideInput {
-  index: Float!
-  durationMilliseconds: Float!
-  transition: JSON!
-  time: JSON!
-  date: JSON!
-  weekdays: [Int!]!
-  appInstanceId: String!
-  screenId: Float!
+  index: Int!
+  durationMilliseconds: Int!
+  transition: JSON
+  time: JSON
+  date: JSON
+  weekdays: JSON!
+  appInstanceId: Float!
+  screenId: Int!
 }
 
 input NewUserInput {
@@ -197,10 +194,23 @@ type Slide {
   isActive: Boolean!
   index: Int!
   durationMilliseconds: Int!
-  transition: JSON!
-  time: JSON!
-  date: JSON!
-  weekdays: [JSON!]!
+  transition: JSON
+  time: JSON
+  date: JSON
+  weekdays: JSON
+  appInstance: AppInstance!
+}
+
+input SlideInput {
+  id: Int
+  isActive: Boolean!
+  index: Int!
+  durationMilliseconds: Int!
+  transition: JSON
+  time: JSON
+  date: JSON
+  weekdays: JSON!
+  appInstanceId: Int
 }
 
 type Storage {
@@ -239,6 +249,10 @@ input UpdateRoleInput {
 input UpdateScreenInput {
   title: String
   isActive: Boolean
+  color: ScreenColor
+  ratio: String
+  organizationId: Int
+  slides: [SlideInput!]
 }
 
 """File upload scalar type"""
