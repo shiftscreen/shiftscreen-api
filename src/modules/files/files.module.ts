@@ -10,13 +10,16 @@ import { Upload } from '../../shared/scalars/upload.scalar';
 import { MinioService } from '../minio/minio.service';
 import { StoragesModule } from '../storages/storages.module';
 import { StoragesService } from '../storages/storages.service';
+import { RolesModule } from '../roles/roles.module';
+import { RolesService } from '../roles/roles.service';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([File]),
     Upload,
     ConfigModule,
-    StoragesModule
+    StoragesModule,
+    RolesModule,
   ],
   providers: [
     FilesService,
@@ -24,7 +27,8 @@ import { StoragesService } from '../storages/storages.service';
     Upload,
     MinioService,
     ConfigService,
-    StoragesService
+    StoragesService,
+    RolesService,
   ],
   exports: [
     FilesService,

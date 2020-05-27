@@ -16,6 +16,7 @@ import { createEntityInstance } from '../../shared/utils/create-entity-instance.
 import { getUpdatedSlides } from './utils/get-updated-slides.util';
 import { AppsInstancesService } from '../apps-instances/apps-instances.service';
 import { getDeletedSlidesIds } from './utils/get-deleted-slides-ids.util';
+import { User } from '../users/users.entity';
 
 @UseGuards(GqlAuthGuard)
 @Resolver(of => Screen)
@@ -32,11 +33,11 @@ export class ScreensResolver {
 
   @Query(returns => Screen)
   async screen(
-    @CurrentUser() user,
+    @CurrentUser() currentUser: User,
     @Args({ name: 'id', type: () => Int }) id: number,
   ): Promise<Screen> {
     const screen = await this.screensService.findOneByIdWithRelations(id, ['organization']);
-    const currentUserRole = await this.rolesService.findOneUserRole(user, await screen.organization);
+    const currentUserRole = await this.rolesService.findOneUserRole(currentUser, await screen.organization);
 
     if (!currentUserRole) {
       throw new ForbiddenException();
@@ -47,12 +48,12 @@ export class ScreensResolver {
 
   @Mutation(returns => Screen)
   async addScreen(
-    @CurrentUser() user,
+    @CurrentUser() currentUser: User,
     @Args('newScreenData') newScreenData: NewScreenInput,
   ): Promise<Screen> {
     const [organization, currentUserRole] = await Promise.all([
       this.organizationsService.findOneById(newScreenData.organizationId),
-      this.rolesService.findOneUserRole(user, { id: newScreenData.organizationId })
+      this.rolesService.findOneUserRole(currentUser, { id: newScreenData.organizationId })
     ]);
 
     if (!currentUserRole.isAdmin()) {
@@ -69,7 +70,7 @@ export class ScreensResolver {
 
   @Mutation(returns => Screen)
   async updateScreen(
-    @CurrentUser() user,
+    @CurrentUser() currentUser: User,
     @Args({ name: 'id', type: () => Int }) id: number,
     @Args('updateScreenData') { organizationId, slides: slidesInput, ...updateScreenData }: UpdateScreenInput,
   ): Promise<Screen> {
@@ -80,8 +81,8 @@ export class ScreensResolver {
 
     const newOrganization = await this.organizationsService.findOneById(organizationId);
     const [currentOrganizationUserRole, newOrganizationUserRole] = await Promise.all([
-      this.rolesService.findOneUserRole(user, await screen.organization),
-      this.rolesService.findOneUserRole(user, newOrganization),
+      this.rolesService.findOneUserRole(currentUser, await screen.organization),
+      this.rolesService.findOneUserRole(currentUser, newOrganization),
     ]);
     if (!currentOrganizationUserRole.isAdmin() || !newOrganizationUserRole.isAdmin()) {
       throw new ForbiddenException();
@@ -102,11 +103,11 @@ export class ScreensResolver {
 
   @Mutation(returns => Boolean)
   async deleteScreen(
-    @CurrentUser() user,
+    @CurrentUser() currentUser: User,
     @Args({ name: 'id', type: () => Int }) id: number,
   ): Promise<boolean> {
     const screen = await this.screensService.findOneByIdWithRelations(id, ['organization']);
-    const currentUserRole = await this.rolesService.findOneUserRole(user, await screen.organization);
+    const currentUserRole = await this.rolesService.findOneUserRole(currentUser, await screen.organization);
 
     if (!currentUserRole.isAdmin()) {
       throw new ForbiddenException();

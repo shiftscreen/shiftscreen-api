@@ -9,9 +9,10 @@ import { NewUserInput } from './dto/new-user.input';
 import { UsersService } from './users.service';
 import { StoragesService } from '../storages/storages.service';
 import { createEntityInstance } from '../../shared/utils/create-entity-instance.util';
-import { getUserFilePath } from '../../shared/utils/file-upload.util';
-import { FileLink } from '../files/file-link.entity';
 import { File } from '../files/files.entity';
+import { Storage } from '../storages/storages.entity';
+import { Role } from '../roles/roles.entity';
+import { AppInstance } from '../apps-instances/apps-instances.entity';
 
 @Resolver(of => User)
 export class UsersResolver {
@@ -28,10 +29,10 @@ export class UsersResolver {
 
   @UseGuards(GqlAuthGuard)
   @Query(returns => User)
-  async user(
+  async userByEmail(
     @Args({ name: 'email', type: () => String }) email: string,
   ): Promise<User> {
-    return this.usersService.findOneByConditions({ email });
+    return this.usersService.findOneByEmail(email);
   }
 
   @Mutation(returns => User)
@@ -40,10 +41,38 @@ export class UsersResolver {
   ): Promise<User> {
     const user = createEntityInstance<User>(User, newUserData);
     await user.hashPassword();
-
     const userInstance = await this.usersService.create(user);
-    await this.storagesService.create({ user: userInstance });
+
+    const storage = createEntityInstance<Storage>(Storage, { user: userInstance });
+    await this.storagesService.create(storage);
+
     return userInstance;
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @ResolveProperty(returns => Storage)
+  async storage(
+    @Parent() user: User,
+    @CurrentUser() currentUser: User,
+  ): Promise<Storage> {
+    if (user.id !== currentUser.id) {
+      throw new ForbiddenException();
+    }
+
+    return user.storage;
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @ResolveProperty(returns => [Role])
+  async roles(
+    @Parent() user: User,
+    @CurrentUser() currentUser: User,
+  ): Promise<Role[]> {
+    if (user.id !== currentUser.id) {
+      throw new ForbiddenException();
+    }
+
+    return user.roles;
   }
 
   @UseGuards(GqlAuthGuard)
@@ -52,10 +81,23 @@ export class UsersResolver {
     @Parent() user: User,
     @CurrentUser() currentUser: User,
   ): Promise<File[]> {
-    if (!currentUser || user.id !== currentUser.id) {
+    if (user.id !== currentUser.id) {
       throw new ForbiddenException();
     }
 
     return user.files;
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @ResolveProperty(returns => [AppInstance])
+  async appInstances(
+    @Parent() user: User,
+    @CurrentUser() currentUser: User,
+  ): Promise<AppInstance[]> {
+    if (user.id !== currentUser.id) {
+      throw new ForbiddenException();
+    }
+
+    return user.appsInstances;
   }
 }

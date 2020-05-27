@@ -86,6 +86,7 @@ type Mutation {
   addFile(newFileData: NewFileInput!): File
   updateFile(updateFileData: UpdateFileInput!, id: Int!): File
   deleteFile(id: Int!): Boolean!
+  fileLink(id: Int!): FileLink!
   addFileKey(fileId: Int!): FileKey!
   deleteFileKey(id: String!): Boolean!
 }
@@ -144,6 +145,7 @@ type Organization {
   createdAt: DateTime!
   updatedAt: DateTime!
   title: String!
+  viewerPermissionType: String!
   roles: [Role!]
   screens: [Screen!]
 }
@@ -155,7 +157,9 @@ enum PermissionType {
 
 type Query {
   viewer: User!
-  user(email: String!): User!
+  userByEmail(email: String!): User!
+  organization(id: Int!): Organization!
+  appInstance(id: Int!): AppInstance!
   screen(id: Int!): Screen!
   fileKey(fileKey: FileKeyInput!): FileKey!
 }
@@ -270,4 +274,5 @@ type User {
   roles: [Role!]
   files: [File!]
   appsInstances: [AppInstance!]
+  appInstances: [AppInstance!]!
 }

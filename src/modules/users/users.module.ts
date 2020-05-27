@@ -13,7 +13,11 @@ import { StoragesService } from '../storages/storages.service';
     forwardRef(() => StoragesModule),
     TypeOrmModule.forFeature([User])
   ],
-  providers: [UsersService, UsersResolver, StoragesService],
+  providers: [
+    UsersService,
+    UsersResolver,
+    StoragesService,
+  ],
   exports: [UsersService, TypeOrmModule],
 })
 export class UsersModule {}

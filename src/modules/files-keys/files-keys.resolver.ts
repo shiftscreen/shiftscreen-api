@@ -11,6 +11,7 @@ import { FileKey } from './files-keys.entity';
 import { FileKeyInput } from './dto/file-key.input';
 import { FilesKeysService } from './files-keys.service';
 import { createEntityInstance } from '../../shared/utils/create-entity-instance.util';
+import { User } from '../users/users.entity';
 
 @Resolver(of => FileKey)
 export class FilesKeysResolver {
@@ -29,34 +30,32 @@ export class FilesKeysResolver {
   @UseGuards(GqlAuthGuard)
   @Mutation(returns => FileKey)
   async addFileKey(
-    @CurrentUser() user,
+    @CurrentUser() currentUser: User,
     @Args({ name: 'fileId', type: () => Int }) fileId: number,
   ): Promise<FileKey> {
-    const file = await this.filesService.findOneByIdWithRelations(fileId, ['user']);
-    const userIsAuthor = (await file.user).id === user.id;
-
-    if (!userIsAuthor) {
+    const file = await this.filesService.findOneByIdAndOwner(fileId, currentUser);
+    if (!file) {
       throw new ForbiddenException();
     }
 
     const fileKeyData: Partial<FileKey> = {
       key: randomString.generate(32),
       file: Promise.resolve(file),
+      user: Promise.resolve(currentUser),
     };
     const fileKey = createEntityInstance<FileKey>(FileKey, fileKeyData);
+
     return this.filesKeysService.create(fileKey);
   }
 
   @UseGuards(GqlAuthGuard)
   @Mutation(returns => Boolean)
   async deleteFileKey(
-    @CurrentUser() user,
+    @CurrentUser() currentUser: User,
     @Args( 'id') id: string,
   ): Promise<boolean> {
-    const fileKey = await this.filesKeysService.findOneByIdWithRelations(id, ['user']);
-    const userIsAuthor = (await fileKey.user).id === user.id;
-
-    if (!userIsAuthor) {
+    const fileKey = await this.filesKeysService.findOneByIdAndOwner(id, currentUser);
+    if (!fileKey) {
       throw new ForbiddenException();
     }
 

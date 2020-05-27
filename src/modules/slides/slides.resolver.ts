@@ -11,6 +11,7 @@ import { NewSlideInput } from './dto/new-slide.input';
 import { SlidesService } from './slides.service';
 import { AppsInstancesService } from '../apps-instances/apps-instances.service';
 import { createEntityInstance } from '../../shared/utils/create-entity-instance.util';
+import { User } from '../users/users.entity';
 
 @UseGuards(GqlAuthGuard)
 @Resolver(of => Slide)
@@ -26,7 +27,7 @@ export class SlidesResolver {
 
   @Mutation(returns => Slide)
   async addSlide(
-    @CurrentUser() user,
+    @CurrentUser() currentUser: User,
     @Args('newSlideData') newSlideData: NewSlideInput,
   ): Promise<Slide> {
     const [screen, appInstance] = await Promise.all([
@@ -35,11 +36,12 @@ export class SlidesResolver {
     ]);
 
     const [currentUserRole, appInstanceUser] = await Promise.all([
-      await this.rolesService.findOneUserRole(user, await screen.organization),
+      await this.rolesService.findOneUserRole(currentUser, await screen.organization),
       await appInstance.user,
     ]);
 
-    if (appInstanceUser.id !== user.id || !currentUserRole.isAdmin()) {
+    const isOwner = appInstanceUser.id === currentUser.id;
+    if (!isOwner && !currentUserRole.isAdmin()) {
       throw new ForbiddenException();
     }
 

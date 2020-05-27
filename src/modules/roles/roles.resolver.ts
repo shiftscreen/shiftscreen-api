@@ -15,6 +15,7 @@ import { NewRoleInput } from './dto/new-role.input';
 import { UpdateRoleInput } from './dto/update-role.input';
 import { RolesService } from './roles.service';
 import { createEntityInstance } from '../../shared/utils/create-entity-instance.util';
+import { User } from '../users/users.entity';
 
 @UseGuards(GqlAuthGuard)
 @Resolver(of => Role)
@@ -27,7 +28,7 @@ export class RolesResolver {
 
   @Mutation(returns => Role)
   async addRole(
-    @CurrentUser() user,
+    @CurrentUser() currentUser: User,
     @Args('newRoleData') newRoleData: NewRoleInput,
   ): Promise<Role> {
     const [roleOrganization, roleUser] = await Promise.all([
@@ -35,8 +36,7 @@ export class RolesResolver {
       this.usersService.findOneById(newRoleData.userId),
     ]);
 
-    const currentUserRole = await this.rolesService.findOneUserRole(user, roleOrganization);
-
+    const currentUserRole = await this.rolesService.findOneUserRole(currentUser, roleOrganization);
     if (!currentUserRole.isAdmin()) {
       throw new ForbiddenException();
     }
@@ -50,8 +50,14 @@ export class RolesResolver {
     const role = createEntityInstance<Role>(Role, roleData);
 
     const roleExists = await this.rolesService.findOneByConditions({
-      user: { id: newRoleData.userId },
-      organization: { id: newRoleData.organizationId },
+      where: {
+        user: {
+          id: newRoleData.userId,
+        },
+        organization: {
+          id: newRoleData.organizationId,
+        },
+      }
     });
 
     if (roleExists) {
@@ -63,14 +69,17 @@ export class RolesResolver {
 
   @Mutation(returns => Role)
   async updateRole(
-    @CurrentUser() user,
+    @CurrentUser() currentUser: User,
     @Args({ name: 'id', type: () => Int }) id: number,
     @Args('updateRoleData') updateRoleData: UpdateRoleInput,
   ): Promise<Role> {
-    const role = await this.rolesService.findOneById(id);
-    const currentUserRole = await this.rolesService.findOneUserRole(await user, await role.organization);
+    const role = await this.rolesService.findOneByIdWithRelations(id, ['organization']);
+    const roleUser = await role.user;
+    const roleOrganization = await role.organization;
+    const currentUserRole = await this.rolesService.findOneUserRole(currentUser, roleOrganization);
 
-    if ((await role.user) !== (await user) || !currentUserRole.isAdmin()) {
+    const isOwner = roleUser.id === currentUser.id;
+    if (!isOwner && !currentUserRole.isAdmin()) {
       throw new ForbiddenException();
     }
 
@@ -79,24 +88,29 @@ export class RolesResolver {
 
   @Mutation(returns => Boolean)
   async deleteRole(
-    @CurrentUser() user,
+    @CurrentUser() currentUser: User,
     @Args({ name: 'id', type: () => Int }) id: number,
   ): Promise<boolean> {
-    const role = await this.rolesService.findOneById(id);
-    const currentUserRole = await this.rolesService.findOneUserRole(await user, await role.organization);
+    const role = await this.rolesService.findOneByIdWithRelations(
+      id,['user', 'organization', 'organization.roles']
+    );
+    const roleUser = await role.user;
+    const roleOrganization = await role.organization;
+    const currentUserRole = await this.rolesService.findOneUserRole(currentUser, roleOrganization);
 
-    if ((await role.user) !== user || !currentUserRole.isAdmin()) {
+    const isOwner = roleUser.id === currentUser.id;
+    if (!isOwner && !currentUserRole.isAdmin()) {
       throw new ForbiddenException();
     }
 
-    const roles = (await (await role.organization).roles);
+    const roles = await roleOrganization.roles;
     const adminRoles = roles.filter((role: Role) => role.isAdmin());
     const lastAdminRole = adminRoles.length === 1;
-    if (lastAdminRole) {
+    if (lastAdminRole && adminRoles[0].id === role.id) {
       throw new GraphQLError(ErrorsMessages.LAST_ADMIN_ROLE);
     }
 
-    const deleteResults = await this.organizationsService.deleteOneById(role.id);
+    const deleteResults = await this.rolesService.deleteOneById(role.id);
     return deleteResults.affected && deleteResults.affected > 0;
   }
 }

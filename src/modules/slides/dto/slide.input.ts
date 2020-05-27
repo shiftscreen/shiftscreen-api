@@ -1,4 +1,4 @@
-import { IsNumber, IsBoolean, IsJSON, Matches, IsOptional, IsUUID, IsString } from 'class-validator';
+import { IsNumber, IsBoolean, IsJSON, Matches, IsOptional } from 'class-validator';
 import { Field, InputType, Int } from 'type-graphql';
 import GraphQLJSON from 'graphql-type-json';
 

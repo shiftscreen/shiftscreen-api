@@ -14,4 +14,12 @@ export class UsersService extends BaseService<User> {
   ) {
     super(usersRepository);
   }
+
+  async findOneByEmail(email): Promise<User> {
+    return this.usersRepository.findOne({
+      where: {
+        email
+      }
+    });
+  }
 }

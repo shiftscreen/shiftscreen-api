@@ -21,8 +21,12 @@ export class BaseService<T> implements IBaseService<T> {
     return this.genericRepository.find();
   }
 
-  async findOneById(id): Promise<T> {
+  async findOneById(id: string | number): Promise<T> {
     return this.genericRepository.findOneOrFail(id);
+  }
+
+  async findManyByConditions(conditions): Promise<T[]> {
+    return this.genericRepository.find(conditions);
   }
 
   async findOneByConditions(conditions): Promise<T> {

@@ -29,7 +29,7 @@ export class UpdateScreenInput {
   @Field(type => Int, { nullable: true })
   @IsOptional()
   @IsNumber()
-  readonly organizationId: number;
+  readonly organizationId?: number;
 
   @Field(type => [SlideInput], { nullable: true })
   @IsOptional()

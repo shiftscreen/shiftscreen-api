@@ -19,4 +19,20 @@ export class RolesService extends BaseService<Role> {
   async findOneUserRole(user: Partial<User>, organization: Partial<Organization>): Promise<Role> {
     return this.findOneByConditions({ user, organization })
   }
+
+  async countSameOrganizationUsersRoles(usersIds: number[]): Promise<number> {
+    const role = this.rolesRepository
+      .createQueryBuilder('roles')
+      .select('COUNT(*)')
+      .addSelect(subQuery => (
+        subQuery
+          .select('COUNT(id)')
+          .where('userId IN :usersIds', { usersIds })
+          .groupBy('organizationId')
+          .having('COUNT(id) >= 2')
+      ))
+      .getOne();
+
+    return 1;
+  }
 }

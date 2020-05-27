@@ -1,4 +1,4 @@
-import { IsNumber, IsString, IsJSON, Matches, IsUUID, IsOptional } from 'class-validator';
+import { IsNumber, IsJSON, Matches, IsOptional } from 'class-validator';
 import { Field, InputType, Int } from 'type-graphql';
 import { SlideTransition } from '../interfaces/slide-transition.interface';
 import { SlideTime } from '../interfaces/slide-time';
