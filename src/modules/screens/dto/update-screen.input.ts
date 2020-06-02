@@ -1,6 +1,5 @@
 import { MaxLength, IsString, IsBoolean, IsOptional, IsArray, Matches, IsEnum, IsNumber } from 'class-validator';
 import { Field, InputType, Int } from 'type-graphql';
-import { ScreenColor } from '../enums/screen-color.enum';
 import { SlideInput } from '../../slides/dto/slide.input';
 
 @InputType()
@@ -16,10 +15,10 @@ export class UpdateScreenInput {
   @IsBoolean()
   readonly isActive?: boolean;
 
-  @Field(type => ScreenColor, { nullable: true })
+  @Field({ nullable: true })
   @IsOptional()
-  @IsEnum(ScreenColor)
-  readonly color?: ScreenColor;
+  @IsString()
+  readonly color?: string;
 
   @Field({ nullable: true })
   @IsOptional()

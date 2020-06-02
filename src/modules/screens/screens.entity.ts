@@ -8,7 +8,6 @@ import { Field, ObjectType } from 'type-graphql';
 import { Slide } from '../slides/slides.entity';
 import { BaseEntity } from '../../shared/base/base.entity';
 import { Organization } from '../organizations/organizations.entity';
-import { ScreenColor } from './enums/screen-color.enum';
 
 @Entity({ name: 'screens' })
 @ObjectType()
@@ -21,12 +20,9 @@ export class Screen extends BaseEntity {
   @Column({ default: true })
   isActive: boolean;
 
-  @Field(type => ScreenColor)
-  @Column({
-    type: 'enum',
-    enum: ScreenColor
-  })
-  color: ScreenColor;
+  @Field()
+  @Column()
+  color: string;
 
   @Field()
   @Column()

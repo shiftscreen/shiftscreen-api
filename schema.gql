@@ -115,7 +115,7 @@ input NewRoleInput {
 
 input NewScreenInput {
   title: String!
-  color: ScreenColor!
+  color: String!
   ratio: String!
   organizationId: Int!
 }
@@ -179,16 +179,11 @@ type Screen {
   updatedAt: DateTime!
   title: String!
   isActive: Boolean!
-  color: ScreenColor!
+  color: String!
   ratio: String!
   organization: Organization!
   slides: [Slide!]
-}
-
-enum ScreenColor {
-  RED
-  GREEN
-  BLUE
+  viewerRole: Role!
 }
 
 type Slide {
@@ -253,7 +248,7 @@ input UpdateRoleInput {
 input UpdateScreenInput {
   title: String
   isActive: Boolean
-  color: ScreenColor
+  color: String
   ratio: String
   organizationId: Int
   slides: [SlideInput!]

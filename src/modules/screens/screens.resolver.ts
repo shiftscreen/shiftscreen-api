@@ -1,4 +1,4 @@
-import { Args, Mutation, Query, Resolver, } from '@nestjs/graphql';
+import { Args, Mutation, Parent, Query, ResolveProperty, Resolver, } from '@nestjs/graphql';
 import { ForbiddenException, forwardRef, Inject, UseGuards } from '@nestjs/common';
 import { Int } from 'type-graphql';
 
@@ -17,6 +17,8 @@ import { getUpdatedSlides } from './utils/get-updated-slides.util';
 import { AppsInstancesService } from '../apps-instances/apps-instances.service';
 import { getDeletedSlidesIds } from './utils/get-deleted-slides-ids.util';
 import { User } from '../users/users.entity';
+import { getFinalSlides } from './utils/get-final-slides';
+import { Role } from '../roles/roles.entity';
 
 @UseGuards(GqlAuthGuard)
 @Resolver(of => Screen)
@@ -75,30 +77,36 @@ export class ScreensResolver {
     @Args('updateScreenData') { organizationId, slides: slidesInput, ...updateScreenData }: UpdateScreenInput,
   ): Promise<Screen> {
     const screen = await this.screensService.findOneByIdWithRelations(id, ['organization', 'slides']);
-    const deletedSlidesIds = getDeletedSlidesIds(await screen.slides, slidesInput);
-    const updatedSlides = getUpdatedSlides(await screen.slides, slidesInput);
-    const finalSlides = updatedSlides.filter(slide => !deletedSlidesIds.includes(slide.id));
+    const [finalSlides, deletedSlidesIds] = getFinalSlides(await screen.slides, slidesInput);
 
-    const newOrganization = await this.organizationsService.findOneById(organizationId);
-    const [currentOrganizationUserRole, newOrganizationUserRole] = await Promise.all([
-      this.rolesService.findOneUserRole(currentUser, await screen.organization),
-      this.rolesService.findOneUserRole(currentUser, newOrganization),
-    ]);
-    if (!currentOrganizationUserRole.isAdmin() || !newOrganizationUserRole.isAdmin()) {
-      throw new ForbiddenException();
+    const newOrganization = organizationId && await this.organizationsService.findOneById(organizationId);
+    if (organizationId) {
+      const [currentOrganizationUserRole, newOrganizationUserRole] = await Promise.all([
+        this.rolesService.findOneUserRole(currentUser, await screen.organization),
+        this.rolesService.findOneUserRole(currentUser, newOrganization),
+      ]);
+
+      if (!currentOrganizationUserRole.isAdmin() || !newOrganizationUserRole.isAdmin()) {
+        throw new ForbiddenException();
+      }
     }
+
+    const updatedSlides = finalSlides ? Promise.resolve(finalSlides) : screen.slides;
+    const updatedOrganization = newOrganization ? Promise.resolve(newOrganization) : screen.organization;
 
     const updatedScreenData: Partial<Screen> = {
       ...updateScreenData,
-      slides: Promise.resolve(finalSlides),
-      organization: Promise.resolve(newOrganization),
+      slides: updatedSlides,
+      organization: updatedOrganization,
     };
-    const newScreen = Object.assign(screen, updatedScreenData);
 
-    if (deletedSlidesIds.length > 0) {
+    const updatedScreen = Object.assign(screen, updatedScreenData);
+
+    if (deletedSlidesIds && deletedSlidesIds.length > 0) {
       await this.slidesService.deleteManyByIds(deletedSlidesIds)
     }
-    return this.screensService.saveOne(newScreen);
+
+    return this.screensService.saveOne(updatedScreen);
   }
 
   @Mutation(returns => Boolean)
@@ -115,5 +123,15 @@ export class ScreensResolver {
 
     const deleteResults = await this.screensService.deleteOneById(screen.id);
     return deleteResults.affected && deleteResults.affected > 0;
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @ResolveProperty(returns => Role)
+  async viewerRole(
+    @Parent() screen: Screen,
+    @CurrentUser() currentUser: User,
+  ): Promise<Role> {
+
+    return this.rolesService.findOneUserRole(currentUser, await screen.organization);
   }
 }
