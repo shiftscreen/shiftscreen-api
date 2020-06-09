@@ -37,12 +37,14 @@ export class SlidesResolver {
 
     const [currentUserRole, appInstanceUser] = await Promise.all([
       await this.rolesService.findOneUserRole(currentUser, await screen.organization),
-      await appInstance.user,
+      await appInstance && appInstance.user,
     ]);
 
-    const isOwner = appInstanceUser.id === currentUser.id;
-    if (!isOwner && !currentUserRole.isAdmin()) {
-      throw new ForbiddenException();
+    if (appInstance) {
+      const isOwner = appInstanceUser.id === currentUser.id;
+      if (!isOwner && !currentUserRole.isAdmin()) {
+        throw new ForbiddenException();
+      }
     }
 
     const slideData: Partial<Slide> = {

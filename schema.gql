@@ -127,7 +127,7 @@ input NewSlideInput {
   time: JSON
   date: JSON
   weekdays: JSON!
-  appInstanceId: Float!
+  appInstanceId: Int
   screenId: Int!
 }
 
@@ -197,7 +197,7 @@ type Slide {
   time: JSON
   date: JSON
   weekdays: JSON
-  appInstance: AppInstance!
+  appInstance: AppInstance
 }
 
 input SlideInput {

@@ -35,9 +35,10 @@ export class NewSlideInput {
   @Matches(/^\[([0-6],?){0,7}]$/)
   readonly weekdays: string;
 
-  @Field()
+  @Field(type => Int, { nullable: true })
+  @IsOptional()
   @IsNumber()
-  readonly appInstanceId: number;
+  readonly appInstanceId?: number;
 
   @Field(type => Int)
   @IsNumber()

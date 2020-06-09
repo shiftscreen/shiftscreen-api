@@ -44,13 +44,13 @@ export class Slide extends BaseEntity {
   @Column({ type: 'json', nullable: true })
   weekdays: string;
 
-  @Column()
-  appInstanceId: number;
+  @Column({ nullable: true })
+  appInstanceId?: number;
 
-  @Field(type => AppInstance)
+  @Field(type => AppInstance, { nullable: true })
   @ManyToOne(type => AppInstance, appInstance => appInstance.slides)
   @JoinColumn({ name: 'appInstanceId' })
-  appInstance: Promise<AppInstance>;
+  appInstance?: Promise<AppInstance>;
 
   @ManyToOne(type => Screen,screen => screen.slides, {
     onDelete: 'CASCADE',
