@@ -7,19 +7,16 @@ import { SlideTime } from '../interfaces/slide-time';
 import { SlideDate } from '../interfaces/slide-date';
 
 @InputType()
-export class SlideInput {
-  @Field(() => Int, { nullable: true })
+export class UpdateSlideInput {
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsBoolean()
+  readonly isActive?: boolean;
+
+  @Field(type => Int, { nullable: true })
   @IsOptional()
   @IsNumber()
-  readonly id?: number;
-
-  @Field()
-  @IsBoolean()
-  readonly isActive: boolean;
-
-  @Field(type => Int)
-  @IsNumber()
-  readonly durationSeconds: number;
+  readonly durationSeconds?: number;
 
   @Field(type => GraphQLJSON, { nullable: true })
   @IsOptional()
@@ -33,8 +30,9 @@ export class SlideInput {
   @IsOptional()
   readonly date?: SlideDate;
 
-  @Field(type => GraphQLJSON)
-  readonly weekdays: string;
+  @Field(type => GraphQLJSON, { nullable: true })
+  @IsOptional()
+  readonly weekdays?: string;
 
   @Field(type => Int, { nullable: true })
   @IsOptional()

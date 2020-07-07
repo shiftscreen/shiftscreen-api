@@ -1,6 +1,7 @@
-import { MaxLength, IsString, IsBoolean, IsOptional, IsArray, Matches, IsEnum, IsNumber } from 'class-validator';
+import { MaxLength, IsString, IsBoolean, IsOptional, IsArray, Matches, IsNumber } from 'class-validator';
 import { Field, InputType, Int } from 'type-graphql';
 import { SlideInput } from '../../slides/dto/slide.input';
+import GraphQLJSON from 'graphql-type-json';
 
 @InputType()
 export class UpdateScreenInput {
@@ -24,6 +25,10 @@ export class UpdateScreenInput {
   @IsOptional()
   @Matches(/^([0-9]{1,2}):[0-9]{1,2}$/)
   readonly ratio?: string;
+
+  @Field(type => GraphQLJSON, { nullable: true })
+  @IsOptional()
+  readonly slidesOrder?: string;
 
   @Field(type => Int, { nullable: true })
   @IsOptional()

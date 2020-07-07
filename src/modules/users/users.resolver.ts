@@ -90,7 +90,7 @@ export class UsersResolver {
 
   @UseGuards(GqlAuthGuard)
   @ResolveProperty(returns => [AppInstance])
-  async appInstances(
+  async appsInstances(
     @Parent() user: User,
     @CurrentUser() currentUser: User,
   ): Promise<AppInstance[]> {

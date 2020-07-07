@@ -8,10 +8,12 @@ import { ScreensService } from '../screens/screens.service';
 
 import { Slide } from './slides.entity';
 import { NewSlideInput } from './dto/new-slide.input';
+import { UpdateSlideInput } from './dto/update-slide.input';
 import { SlidesService } from './slides.service';
 import { AppsInstancesService } from '../apps-instances/apps-instances.service';
 import { createEntityInstance } from '../../shared/utils/create-entity-instance.util';
 import { User } from '../users/users.entity';
+import { Int } from 'type-graphql';
 
 @UseGuards(GqlAuthGuard)
 @Resolver(of => Slide)
@@ -54,5 +56,47 @@ export class SlidesResolver {
     };
     const slide = createEntityInstance<Slide>(Slide, slideData);
     return this.slidesService.create(slide);
+  }
+
+  @Mutation(returns => Slide)
+  async updateSlide(
+    @CurrentUser() currentUser: User,
+    @Args({ name: 'id', type: () => Int }) id: number,
+    @Args('updateSlideData') updateSlideData: UpdateSlideInput,
+  ): Promise<Slide> {
+    const [slide, appInstance] = await Promise.all([
+      this.slidesService.findOneByIdWithRelations(id, ['screen', 'screen.organization']),
+      this.appsInstancesService.findOneByIdWithRelations(updateSlideData.appInstanceId, ['user']),
+    ]);
+    const screen = await slide.screen;
+
+    const [currentUserRole, appInstanceUser] = await Promise.all([
+      await this.rolesService.findOneUserRole(currentUser, await screen.organization),
+      await appInstance && appInstance.user,
+    ]);
+
+    const isOwner = !appInstance || (appInstanceUser.id === currentUser.id);
+    if (!isOwner && !currentUserRole.isAdmin()) {
+      throw new ForbiddenException();
+    }
+
+    return this.slidesService.updateOne(slide.id, updateSlideData);
+  }
+
+  @Mutation(returns => Boolean)
+  async deleteSlide(
+    @CurrentUser() currentUser: User,
+    @Args({ name: 'id', type: () => Int }) id: number,
+  ): Promise<boolean> {
+    const slide = await this.slidesService.findOneByIdWithRelations(id, ['screen', 'screen.organization']);
+    const screen = await slide.screen;
+    const currentUserRole = await this.rolesService.findOneUserRole(currentUser, await screen.organization);
+
+    if (!currentUserRole.isAdmin()) {
+      throw new ForbiddenException();
+    }
+
+    const deleteResults = await this.slidesService.deleteOneById(id);
+    return deleteResults.affected && deleteResults.affected > 0;
   }
 }

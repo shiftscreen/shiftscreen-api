@@ -22,26 +22,22 @@ export class Slide extends BaseEntity {
 
   @Field(() => Int)
   @Column()
-  index: number;
-
-  @Field(() => Int)
-  @Column()
-  durationMilliseconds: number;
+  durationSeconds: number;
 
   @Field(type => GraphQLJSON, { nullable: true })
-  @Column({ type: 'json', nullable: true })
+  @Column({ type: 'simple-json', nullable: true })
   transition?: SlideTransition;
 
   @Field(type => GraphQLJSON, { nullable: true })
-  @Column({ type: 'json', nullable: true })
+  @Column({ type: 'simple-json', nullable: true })
   time?: SlideTime;
 
   @Field(type => GraphQLJSON, { nullable: true })
-  @Column({ type: 'json', nullable: true })
+  @Column({ type: 'simple-json', nullable: true })
   date?: SlideDate;
 
   @Field(type => GraphQLJSON, { defaultValue: '[]' })
-  @Column({ type: 'json', nullable: true })
+  @Column({ type: 'simple-json', nullable: true })
   weekdays: string;
 
   @Column({ nullable: true })

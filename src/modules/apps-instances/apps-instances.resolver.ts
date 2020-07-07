@@ -4,7 +4,7 @@ import {
   Mutation,
   Query,
 } from '@nestjs/graphql';
-import { ForbiddenException, forwardRef, Inject, UseGuards } from '@nestjs/common';
+import { ForbiddenException, UseGuards } from '@nestjs/common';
 import { Int } from 'type-graphql';
 
 import { CurrentUser } from '../../shared/decorators/current-user.decorator';
@@ -76,5 +76,27 @@ export class AppsInstancesResolver {
     }
 
     return appInstance;
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Query(returns => [AppInstance])
+  async appInstancesByAppId(
+    @Args({ name: 'appId', type: () => String }) appId: string,
+    @CurrentUser() currentUser: User,
+  ): Promise<AppInstance[]> {
+    const appInstances = await this.appsInstancesService.findManyByConditions({
+      where: {
+        appId,
+        user: {
+          id: currentUser.id,
+        }
+      },
+    });
+
+    if (!appInstances) {
+      throw new ForbiddenException();
+    }
+
+    return appInstances;
   }
 }

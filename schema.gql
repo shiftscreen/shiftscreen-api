@@ -80,6 +80,8 @@ type Mutation {
   updateAppInstance(updateAppInstanceData: UpdateAppInstanceInput!, id: Int!): AppInstance!
   deleteAppInstance(id: Int!): Boolean!
   addSlide(newSlideData: NewSlideInput!): Slide!
+  updateSlide(updateSlideData: UpdateSlideInput!, id: Int!): Slide!
+  deleteSlide(id: Int!): Boolean!
   addScreen(newScreenData: NewScreenInput!): Screen!
   updateScreen(updateScreenData: UpdateScreenInput!, id: Int!): Screen!
   deleteScreen(id: Int!): Boolean!
@@ -121,8 +123,7 @@ input NewScreenInput {
 }
 
 input NewSlideInput {
-  index: Int!
-  durationMilliseconds: Int!
+  durationSeconds: Int!
   transition: JSON
   time: JSON
   date: JSON
@@ -160,6 +161,7 @@ type Query {
   userByEmail(email: String!): User!
   organization(id: Int!): Organization!
   appInstance(id: Int!): AppInstance!
+  appInstancesByAppId(appId: String!): [AppInstance!]!
   screen(id: Int!): Screen!
   fileKey(fileKey: FileKeyInput!): FileKey!
 }
@@ -181,6 +183,7 @@ type Screen {
   isActive: Boolean!
   color: String!
   ratio: String!
+  slidesOrder: JSON!
   organization: Organization!
   slides: [Slide!]
   viewerRole: Role!
@@ -191,8 +194,7 @@ type Slide {
   createdAt: DateTime!
   updatedAt: DateTime!
   isActive: Boolean!
-  index: Int!
-  durationMilliseconds: Int!
+  durationSeconds: Int!
   transition: JSON
   time: JSON
   date: JSON
@@ -203,8 +205,7 @@ type Slide {
 input SlideInput {
   id: Int
   isActive: Boolean!
-  index: Int!
-  durationMilliseconds: Int!
+  durationSeconds: Int!
   transition: JSON
   time: JSON
   date: JSON
@@ -250,8 +251,19 @@ input UpdateScreenInput {
   isActive: Boolean
   color: String
   ratio: String
+  slidesOrder: JSON
   organizationId: Int
   slides: [SlideInput!]
+}
+
+input UpdateSlideInput {
+  isActive: Boolean
+  durationSeconds: Int
+  transition: JSON
+  time: JSON
+  date: JSON
+  weekdays: JSON
+  appInstanceId: Int
 }
 
 """File upload scalar type"""
@@ -269,5 +281,4 @@ type User {
   roles: [Role!]
   files: [File!]
   appsInstances: [AppInstance!]
-  appInstances: [AppInstance!]!
 }
