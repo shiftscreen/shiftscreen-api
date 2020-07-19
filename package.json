@@ -45,7 +45,7 @@
     "graphql-type-json": "^0.3.1",
     "graphql-upload": "^10.0.0",
     "helmet": "^3.22.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "minio": "^7.0.13",
     "multer": "^1.4.2",
     "multer-s3": "^2.9.0",
