@@ -12,4 +12,8 @@ export class LoginInput {
   @IsString()
   @Length(6, 255)
   readonly password: string;
+
+  @Field()
+  @IsString()
+  readonly recaptcha: string;
 }

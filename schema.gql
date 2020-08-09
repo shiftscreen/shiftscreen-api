@@ -65,11 +65,16 @@ scalar JSON
 input LoginInput {
   email: String!
   password: String!
+  recaptcha: String!
 }
 
 type Mutation {
   addUser(newUserData: NewUserInput!): User!
+  updateUser(updateUserData: UpdateUserInput!, id: Int!): User!
+  deleteUser(password: String!, id: Int!): Boolean!
   login(loginData: LoginInput!): TokenResponse!
+  refreshToken: TokenResponse
+  revokeToken: Boolean!
   addRole(newRoleData: NewRoleInput!): Role!
   updateRole(updateRoleData: UpdateRoleInput!, id: Int!): Role!
   deleteRole(id: Int!): Boolean!
@@ -139,6 +144,7 @@ input NewUserInput {
   lastName: String!
   rulesAccepted: Boolean!
   picture: Upload
+  recaptcha: String!
 }
 
 type Organization {
@@ -223,9 +229,9 @@ type Storage {
 }
 
 type TokenResponse {
-  accessToken: String!
   tokenType: String!
-  expiresIn: String!
+  accessToken: String!
+  expiresIn: Int!
 }
 
 input UpdateAppInstanceInput {
@@ -264,6 +270,14 @@ input UpdateSlideInput {
   date: JSON
   weekdays: JSON
   appInstanceId: Int
+}
+
+input UpdateUserInput {
+  email: String
+  oldPassword: String
+  password: String
+  firstName: String
+  lastName: String
 }
 
 """File upload scalar type"""

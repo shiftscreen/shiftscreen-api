@@ -34,4 +34,8 @@ export class NewUserInput {
   @Exclude()
   @Field(type => Upload, { nullable: true })
   readonly picture: Promise<FileUpload>;
+
+  @Field()
+  @IsString()
+  readonly recaptcha: string;
 }

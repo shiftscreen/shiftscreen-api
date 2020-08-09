@@ -4,3 +4,7 @@ export const ErrorsMessages = {
   LAST_ADMIN_ROLE: 'Organization must have at least one administrator.',
   WRONG_SLIDE_SCREEN: 'Slide has not been connected to this screen',
 };
+
+export const COOKIES = {
+  REFRESH_TOKEN: 'Authentication',
+};

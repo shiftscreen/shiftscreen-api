@@ -7,9 +7,11 @@ import { User } from './users.entity';
 
 import { StoragesModule } from '../storages/storages.module';
 import { StoragesService } from '../storages/storages.service';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
+    forwardRef(() => AuthModule),
     forwardRef(() => StoragesModule),
     TypeOrmModule.forFeature([User])
   ],

@@ -9,6 +9,7 @@ import { FileKey } from '../modules/files-keys/files-keys.entity';
 import { Storage } from '../modules/storages/storages.entity';
 import { AppInstance } from '../modules/apps-instances/apps-instances.entity';
 import { Organization } from '../modules/organizations/organizations.entity';
+import { Token } from '../modules/auth/entities/token.entity';
 
 export default registerAs('typeorm', () => ({
   type: process.env.DATABASE_TYPE,
@@ -27,6 +28,7 @@ export default registerAs('typeorm', () => ({
     Storage,
     AppInstance,
     Organization,
+    Token,
   ],
   synchronize: true,
   logging: process.env.NODE_ENV !== 'production'

@@ -13,11 +13,12 @@ import { BaseEntity } from '../../shared/base/base.entity';
 
 import * as bcrypt from 'bcrypt';
 import { AppInstance } from '../apps-instances/apps-instances.entity';
+import { Token } from '../auth/entities/token.entity';
 
 @Entity({ name: 'users' })
 @ObjectType()
 export class User extends BaseEntity {
-  private saltRounds = 10;
+  public static saltRounds = 10;
 
   @Field()
   @Column({ unique: true })
@@ -63,12 +64,17 @@ export class User extends BaseEntity {
   })
   appsInstances: Promise<AppInstance[]>;
 
+  @OneToMany(type => Token, token => token.user, {
+    onDelete: 'CASCADE'
+  })
+  tokens: Promise<Token[]>;
+
   hidePassword(): void {
     this.password = undefined;
   }
 
   async hashPassword(): Promise<void> {
-    this.password = await bcrypt.hash(this.password, this.saltRounds);
+    this.password = await bcrypt.hash(this.password, User.saltRounds);
   }
 
   async compareHash(password: string | undefined): Promise<boolean> {
