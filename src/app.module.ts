@@ -15,6 +15,7 @@ import { StoragesModule } from './modules/storages/storages.module';
 import { MinioModule } from './modules/minio/minio.module';
 import { AppsInstancesModule } from './modules/apps-instances/apps-instances.module';
 import { OrganizationsModule } from './modules/organizations/organizations.module';
+import { UtilsModule } from './modules/utils/utils.module';
 
 import typeormConfig from './config/typeorm.config';
 import graphqlConfig from './config/graphql.config';
@@ -47,6 +48,7 @@ import graphqlConfig from './config/graphql.config';
     MinioModule,
     AppsInstancesModule,
     OrganizationsModule,
+    UtilsModule,
   ],
   controllers: [],
   providers: [],

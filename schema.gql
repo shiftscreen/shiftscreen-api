@@ -170,6 +170,8 @@ type Query {
   appInstancesByAppId(appId: String!): [AppInstance!]!
   screen(id: Int!): Screen!
   fileKey(fileKey: FileKeyInput!): FileKey!
+  calendarTodayDayNames: String!
+  calendarTodayHoliday: String!
 }
 
 type Role {
