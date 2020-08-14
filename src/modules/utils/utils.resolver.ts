@@ -1,12 +1,10 @@
-import { Query, Resolver } from '@nestjs/graphql';
-import { UseGuards } from '@nestjs/common';
+import { Args, Query, Resolver } from '@nestjs/graphql';
 
-import { GqlAuthGuard } from '../../shared/guards/gql-auth.guard';
-import { CurrentUser } from '../../shared/decorators/current-user.decorator';
-import { UtilsService } from './utils.service';
-import { User } from '../users/users.entity';
 import * as dayjs from 'dayjs';
 import * as dayOfYear from 'dayjs/plugin/dayOfYear';
+import { UtilsService } from './utils.service';
+import { PredefinedQuotesType } from './enums/predefined-quotes.enum';
+import { Quote } from './entities/quote.entity';
 
 dayjs.extend(dayOfYear);
 
@@ -18,7 +16,7 @@ export class UtilsResolver {
 
 
   @Query(returns => String)
-  async calendarTodayDayNames(@CurrentUser() user: User): Promise<string> {
+  async calendarTodayDayNames(): Promise<string> {
     const todayDay = dayjs().dayOfYear();
     const leapYear = dayjs().year() % 4 === 0;
     const index = todayDay - 1 - (leapYear && todayDay > 1 ? 1 : 0);
@@ -26,13 +24,19 @@ export class UtilsResolver {
     return this.utilsService.getDayNames(index);
   }
 
-
   @Query(returns => String)
-  async calendarTodayHoliday(@CurrentUser() user: User): Promise<string> {
+  async calendarTodayHoliday(): Promise<string> {
     const todayDay = dayjs().dayOfYear();
     const leapYear = dayjs().year() % 4 === 0;
     const index = todayDay - 1 + (leapYear && todayDay > 1 ? 1 : 0);
 
     return this.utilsService.getHoliday(index);
+  }
+
+  @Query(returns => [Quote])
+  async quotePredefinedQuotes(
+    @Args({ name: 'type', type: () => PredefinedQuotesType }) type: PredefinedQuotesType,
+  ): Promise<Quote[]> {
+    return this.utilsService.getQuotes(type);
   }
 }

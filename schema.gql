@@ -162,6 +162,11 @@ enum PermissionType {
   Editor
 }
 
+enum PredefinedQuotesType {
+  Motivational
+  Bussiness
+}
+
 type Query {
   viewer: User!
   userByEmail(email: String!): User!
@@ -172,6 +177,13 @@ type Query {
   fileKey(fileKey: FileKeyInput!): FileKey!
   calendarTodayDayNames: String!
   calendarTodayHoliday: String!
+  quotePredefinedQuotes(type: PredefinedQuotesType!): [Quote!]!
+}
+
+type Quote {
+  id: String!
+  content: String!
+  author: String!
 }
 
 type Role {
