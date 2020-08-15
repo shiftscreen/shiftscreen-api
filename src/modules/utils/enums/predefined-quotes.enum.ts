@@ -2,7 +2,7 @@ import { registerEnumType } from 'type-graphql';
 
 export enum PredefinedQuotesType {
   Motivational,
-  Bussiness,
+  Business,
 }
 
 registerEnumType(PredefinedQuotesType, {

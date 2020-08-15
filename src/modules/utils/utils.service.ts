@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import namesListText from '../../assets/names-days.txt';
 import holidaysListText from '../../assets/holidays.txt';
 import quotesMotivationalListText from '../../assets/quotes/motivational.txt';
-import quotesBussinessListText from '../../assets/quotes/bussiness.txt';
+import quotesBusinessListText from '../../assets/quotes/bussiness.txt';
 
 import { Quote } from './entities/quote.entity';
 import { PredefinedQuotesType } from './enums/predefined-quotes.enum';
@@ -18,7 +18,7 @@ export class UtilsService {
   private namesList = parseListText(namesListText);
   private holidaysList = parseListText(holidaysListText);
   private quotesMotivationalList = parseListText(quotesMotivationalListText);
-  private quotesBussinessList = parseListText(quotesBussinessListText);
+  private quotesBusinessList = parseListText(quotesBusinessListText);
 
   getDayNames(index: number): string {
     return this.namesList[index];
@@ -31,7 +31,7 @@ export class UtilsService {
   getQuotes(type: PredefinedQuotesType): Quote[] {
     const variants: Record<PredefinedQuotesType, string[]> = {
       [PredefinedQuotesType.Motivational]: this.quotesMotivationalList,
-      [PredefinedQuotesType.Bussiness]: this.quotesBussinessList,
+      [PredefinedQuotesType.Business]: this.quotesBusinessList,
     };
     const selectedVariant = variants[type];
 

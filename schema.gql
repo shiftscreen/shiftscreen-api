@@ -164,7 +164,7 @@ enum PermissionType {
 
 enum PredefinedQuotesType {
   Motivational
-  Bussiness
+  Business
 }
 
 type Query {
