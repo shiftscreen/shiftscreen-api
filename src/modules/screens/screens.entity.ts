@@ -8,6 +8,7 @@ import { Field, ObjectType } from 'type-graphql';
 import { Slide } from '../slides/slides.entity';
 import { BaseEntity } from '../../shared/base/base.entity';
 import { Organization } from '../organizations/organizations.entity';
+import { ScreenKey } from '../screens-keys/screens-keys.entity';
 import GraphQLJSON from 'graphql-type-json';
 
 @Entity({ name: 'screens' })
@@ -29,6 +30,10 @@ export class Screen extends BaseEntity {
   @Column()
   ratio: string;
 
+  @Field()
+  @Column({ length: 32 })
+  publicKey: string;
+
   @Field(type => GraphQLJSON)
   @Column({ type: 'simple-json', default: '[]' })
   slidesOrder: string;
@@ -36,6 +41,12 @@ export class Screen extends BaseEntity {
   @Field(type => Organization)
   @ManyToOne(type => Organization, organization => organization.roles)
   organization: Promise<Organization>;
+
+  @Field(type => [ScreenKey], { nullable: true })
+  @OneToMany(type => ScreenKey, key => key.screen, {
+    onDelete: 'CASCADE'
+  })
+  keys: Promise<ScreenKey[]>;
 
   @Field(type => [Slide], { nullable: true })
   @OneToMany(type => Slide, slide => slide.screen, {

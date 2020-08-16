@@ -96,6 +96,8 @@ type Mutation {
   fileLink(id: Int!): FileLink!
   addFileKey(fileId: Int!): FileKey!
   deleteFileKey(id: String!): Boolean!
+  addScreenKey(privateKey: String!, screenId: Int!): ScreenKey!
+  deleteScreenKey(id: Int!): Boolean!
 }
 
 input NewAppInstanceInput {
@@ -178,6 +180,7 @@ type Query {
   calendarTodayDayNames: String!
   calendarTodayHoliday: String!
   quotePredefinedQuotes(type: PredefinedQuotesType!): [Quote!]!
+  screenByKey(screenKey: ScreenKeyInput!): Screen!
 }
 
 type Quote {
@@ -203,10 +206,27 @@ type Screen {
   isActive: Boolean!
   color: String!
   ratio: String!
+  publicKey: String!
   slidesOrder: JSON!
   organization: Organization!
+  keys: [ScreenKey!]
   slides: [Slide!]
   viewerRole: Role!
+}
+
+type ScreenKey {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  privateKey: String
+  screen: Screen!
+  user: User!
+}
+
+input ScreenKeyInput {
+  screenId: Int!
+  publicKey: String!
+  privateKey: String!
 }
 
 type Slide {

@@ -13,12 +13,11 @@ import { ScreensService } from './screens.service';
 import { UpdateScreenInput } from './dto/update-screen.input';
 import { OrganizationsService } from '../organizations/organizations.service';
 import { createEntityInstance } from '../../shared/utils/create-entity-instance.util';
-import { getUpdatedSlides } from './utils/get-updated-slides.util';
 import { AppsInstancesService } from '../apps-instances/apps-instances.service';
-import { getDeletedSlidesIds } from './utils/get-deleted-slides-ids.util';
 import { User } from '../users/users.entity';
-import { getFinalSlides } from './utils/get-final-slides';
 import { Role } from '../roles/roles.entity';
+import { getFinalSlides } from './utils/get-final-slides';
+import { generateRandomKey } from './utils/generate-random-key';
 
 @UseGuards(GqlAuthGuard)
 @Resolver(of => Screen)
@@ -65,6 +64,7 @@ export class ScreensResolver {
     const screenData: Partial<Screen> = {
       ...newScreenData,
       organization: Promise.resolve(organization),
+      publicKey: generateRandomKey(),
     };
     const screen = createEntityInstance<Screen>(Screen, screenData);
     return this.screensService.create(screen);
