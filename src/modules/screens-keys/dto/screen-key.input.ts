@@ -1,6 +1,7 @@
-import { Field, InputType, Int } from 'type-graphql';
+import { Field, InputType, ObjectType, Int } from 'type-graphql';
 
-@InputType()
+@InputType('ScreenKeyInput')
+@ObjectType('ScreenKeyInputSubscription')
 export class ScreenKeyInput {
   @Field(type => Int)
   readonly screenId: number;

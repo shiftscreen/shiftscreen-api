@@ -1,6 +1,8 @@
-import { Resolver, Args, Mutation, Query } from '@nestjs/graphql';
+import { Resolver, Args, Mutation, Query, Subscription } from '@nestjs/graphql';
 import { ForbiddenException, UseGuards } from '@nestjs/common';
+import { PubSub } from 'graphql-subscriptions';
 import { Int } from 'type-graphql';
+import { isEqual } from 'lodash';
 
 import { GqlAuthGuard } from '../../shared/guards/gql-auth.guard';
 import { CurrentUser } from '../../shared/decorators/current-user.decorator';
@@ -14,6 +16,8 @@ import { ScreensService } from '../screens/screens.service';
 import { RolesService } from '../roles/roles.service';
 import { ScreenKeyInput } from './dto/screen-key.input';
 
+const pubSub = new PubSub();
+
 @Resolver(of => ScreenKey)
 export class ScreensKeysResolver {
   constructor(
@@ -21,6 +25,17 @@ export class ScreensKeysResolver {
     private readonly screensService: ScreensService,
     private readonly rolesService: RolesService,
   ) {}
+
+  @Subscription(returns => ScreenKeyInput, {
+    filter: (payload, variables) => (
+      isEqual(payload.screenKeyAdded, variables.screenKey)
+    )
+  })
+  screenKeyAdded(
+    @Args('screenKey') screenKey: ScreenKeyInput,
+  ) {
+    return pubSub.asyncIterator('screenKeyAdded');
+  }
 
   @Query(returns => Screen)
   async screenByKey(
@@ -65,8 +80,15 @@ export class ScreensKeysResolver {
     };
 
     const screenKey = createEntityInstance<ScreenKey>(ScreenKey, screenKeyData);
+    const createdKey = await this.screensKeysService.create(screenKey);
+    const subscriptionPayload: ScreenKeyInput = {
+      privateKey,
+      publicKey: screen.publicKey,
+      screenId: screen.id,
+    };
+    await pubSub.publish('screenKeyAdded', { screenKeyAdded: subscriptionPayload });
 
-    return this.screensKeysService.create(screenKey);
+    return createdKey;
   }
 
   @UseGuards(GqlAuthGuard)

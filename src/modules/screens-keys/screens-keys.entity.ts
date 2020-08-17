@@ -1,8 +1,6 @@
 import {
   Entity,
   ManyToOne,
-  PrimaryGeneratedColumn,
-  CreateDateColumn,
   Column,
 } from 'typeorm';
 import { Field, ObjectType } from 'type-graphql';

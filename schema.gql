@@ -229,6 +229,12 @@ input ScreenKeyInput {
   privateKey: String!
 }
 
+type ScreenKeyInputSubscription {
+  screenId: Int!
+  publicKey: String!
+  privateKey: String!
+}
+
 type Slide {
   id: ID!
   createdAt: DateTime!
@@ -260,6 +266,10 @@ type Storage {
   usedKilobytes: Int!
   maxKilobytes: Int!
   user: User!
+}
+
+type Subscription {
+  screenKeyAdded(screenKey: ScreenKeyInput!): ScreenKeyInputSubscription!
 }
 
 type TokenResponse {
