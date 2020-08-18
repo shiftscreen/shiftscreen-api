@@ -11,11 +11,11 @@ import { BaseEntity } from '../../shared/base/base.entity';
 @ObjectType()
 export class Storage extends BaseEntity {
   @Field(() => Int)
-  @Column()
+  @Column({ default: 0 })
   usedKilobytes: number;
 
   @Field(() => Int)
-  @Column()
+  @Column({ default: 0 })
   maxKilobytes: number;
 
   @Field(type => User)

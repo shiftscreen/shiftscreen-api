@@ -67,7 +67,7 @@ export class UsersResolver {
     @Args('updateUserData') { oldPassword, ...updateUserData }: UpdateUserInput,
   ): Promise<User> {
     const notAllowed = id !== currentUser.id;
-    const correctPassword = oldPassword && await currentUser.compareHash(oldPassword);
+    const correctPassword = !oldPassword || await currentUser.compareHash(oldPassword);
 
     if (notAllowed || !correctPassword) {
       throw new ForbiddenException();
