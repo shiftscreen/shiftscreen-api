@@ -34,8 +34,8 @@ export class Screen extends BaseEntity {
   @Column({ length: 32 })
   publicKey: string;
 
-  @Field(type => GraphQLJSON)
-  @Column({ type: 'simple-json', default: '[]' })
+  @Field(type => GraphQLJSON, { defaultValue: [] })
+  @Column({ type: 'simple-json' })
   slidesOrder: string;
 
   @Field(type => Organization)

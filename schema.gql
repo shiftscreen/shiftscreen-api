@@ -207,7 +207,7 @@ type Screen {
   color: String!
   ratio: String!
   publicKey: String!
-  slidesOrder: JSON!
+  slidesOrder: JSON
   organization: Organization!
   keys: [ScreenKey!]
   slides: [Slide!]
