@@ -41,31 +41,31 @@ export class User extends BaseEntity {
 
   @Field(type => Storage)
   @OneToOne(type => Storage, storage => storage.user, {
-    onDelete: 'CASCADE',
+    cascade: true,
   })
   @JoinColumn()
   storage: Promise<Storage>;
 
   @Field(type => [Role], { nullable: true })
   @OneToMany(type => Role, role => role.user, {
-    onDelete: 'CASCADE'
+    cascade: true,
   })
   roles: Promise<Role[]>;
 
   @Field(type => [File], { nullable: true })
   @OneToMany(type => File, file => file.user, {
-    onDelete: 'CASCADE'
+    cascade: true,
   })
   files: Promise<File[]>;
 
   @Field(type => [AppInstance], { nullable: true })
   @OneToMany(type => AppInstance, appInstance => appInstance.user, {
-    onDelete: 'CASCADE'
+    cascade: true,
   })
   appsInstances: Promise<AppInstance[]>;
 
   @OneToMany(type => Token, token => token.user, {
-    onDelete: 'CASCADE'
+    cascade: true,
   })
   tokens: Promise<Token[]>;
 

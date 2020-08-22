@@ -30,12 +30,14 @@ export class File extends BaseEntity {
   sizeKilobytes: number;
 
   @Field(type => User)
-  @ManyToOne(type => User, user => user.files)
+  @ManyToOne(type => User, user => user.files, {
+    onDelete: 'CASCADE'
+  })
   user: Promise<User>;
 
   @Field(type => [FileKey], { nullable: true })
   @OneToMany(type => FileKey, key => key.file, {
-    onDelete: 'CASCADE'
+    cascade: true,
   })
   keys: Promise<FileKey[]>;
 

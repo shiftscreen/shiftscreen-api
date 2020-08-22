@@ -21,11 +21,15 @@ export class Role extends BaseEntity {
   permissionType: PermissionType;
 
   @Field(type => User)
-  @ManyToOne(type => User, user => user.roles)
+  @ManyToOne(type => User, user => user.roles, {
+    onDelete: 'CASCADE'
+  })
   user: Promise<User>;
 
   @Field(type => Organization)
-  @ManyToOne(type => Organization, organization => organization.roles)
+  @ManyToOne(type => Organization, organization => organization.roles, {
+    onDelete: 'CASCADE'
+  })
   organization: Promise<Organization>;
 
   public isAdmin(): boolean {

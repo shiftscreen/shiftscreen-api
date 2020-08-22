@@ -26,10 +26,14 @@ export class FileKey {
   key: string;
 
   @Field(type => File)
-  @ManyToOne(type => File, file => file.keys)
+  @ManyToOne(type => File, file => file.keys, {
+    onDelete: 'CASCADE'
+  })
   file: Promise<File>;
 
   @Field(type => User)
-  @ManyToOne(type => User, user => user.files)
+  @ManyToOne(type => User, user => user.files, {
+    onDelete: 'CASCADE'
+  })
   user: Promise<User>;
 }

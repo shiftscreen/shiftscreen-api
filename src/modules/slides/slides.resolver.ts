@@ -75,8 +75,9 @@ export class SlidesResolver {
       await appInstance && appInstance.user,
     ]);
 
-    const isOwner = !appInstance || (appInstanceUser.id === currentUser.id);
-    if (!isOwner && !currentUserRole.isAdmin()) {
+    const hasRole = !!currentUserRole;
+    const isOwner = appInstance && (appInstanceUser.id === currentUser.id);
+    if (!hasRole && !isOwner) {
       throw new ForbiddenException();
     }
 

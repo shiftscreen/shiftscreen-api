@@ -27,8 +27,7 @@ export class UtilsResolver {
   @Query(returns => String)
   async calendarTodayHoliday(): Promise<string> {
     const todayDay = dayjs().dayOfYear();
-    const leapYear = dayjs().year() % 4 === 0;
-    const index = todayDay - 1 + (leapYear && todayDay > 1 ? 1 : 0);
+    const index = todayDay - 1;
 
     return this.utilsService.getHoliday(index);
   }

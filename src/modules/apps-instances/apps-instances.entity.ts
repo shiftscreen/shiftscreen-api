@@ -31,12 +31,14 @@ export class AppInstance extends BaseEntity {
   config: string;
 
   @Field(type => User)
-  @ManyToOne(type => User, user => user.appsInstances)
+  @ManyToOne(type => User, user => user.appsInstances, {
+    onDelete: 'CASCADE'
+  })
   user: Promise<User>;
 
   @Field(type => [Slide], { nullable: true })
   @OneToMany(type => Slide, slide => slide.appInstance, {
-    onDelete: 'CASCADE'
+    cascade: true,
   })
   slides: Promise<Slide[]>;
 }

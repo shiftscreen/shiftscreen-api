@@ -19,6 +19,8 @@ export class Storage extends BaseEntity {
   maxKilobytes: number;
 
   @Field(type => User)
-  @OneToOne(type => User, user => user.storage)
+  @OneToOne(type => User, user => user.storage, {
+    onDelete: 'CASCADE'
+  })
   user: User;
 }

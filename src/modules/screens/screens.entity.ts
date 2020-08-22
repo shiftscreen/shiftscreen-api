@@ -31,7 +31,7 @@ export class Screen extends BaseEntity {
   ratio: string;
 
   @Field()
-  @Column({ length: 32 })
+  @Column({ length: 32, unique: true })
   publicKey: string;
 
   @Field(type => GraphQLJSON, { defaultValue: [] })
@@ -39,19 +39,20 @@ export class Screen extends BaseEntity {
   slidesOrder: string;
 
   @Field(type => Organization)
-  @ManyToOne(type => Organization, organization => organization.roles)
+  @ManyToOne(type => Organization, organization => organization.screens, {
+    onDelete: 'CASCADE'
+  })
   organization: Promise<Organization>;
 
   @Field(type => [ScreenKey], { nullable: true })
   @OneToMany(type => ScreenKey, key => key.screen, {
-    onDelete: 'CASCADE'
+    cascade: true,
   })
   keys: Promise<ScreenKey[]>;
 
   @Field(type => [Slide], { nullable: true })
   @OneToMany(type => Slide, slide => slide.screen, {
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE',
+    cascade: true,
   })
   slides: Promise<Slide[]>;
 }

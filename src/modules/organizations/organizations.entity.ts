@@ -22,13 +22,13 @@ export class Organization extends BaseEntity {
 
   @Field(type => [Role], { nullable: true })
   @OneToMany(type => Role, role => role.organization, {
-    onDelete: 'CASCADE'
+    cascade: true,
   })
   roles: Promise<Role[]>;
 
   @Field(type => [Screen], { nullable: true })
   @OneToMany(type => Screen, screen => screen.organization, {
-    onDelete: 'CASCADE'
+    cascade: true,
   })
   screens: Promise<Screen[]>;
 }

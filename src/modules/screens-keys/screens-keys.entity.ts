@@ -17,7 +17,9 @@ export class ScreenKey extends BaseEntity {
   privateKey: string;
 
   @Field(type => Screen)
-  @ManyToOne(type => Screen, screen => screen.keys)
+  @ManyToOne(type => Screen, screen => screen.keys, {
+    onDelete: 'CASCADE'
+  })
   screen: Promise<Screen>;
 
   @Field(type => User)

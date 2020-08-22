@@ -8,8 +8,10 @@ import { IMinioService } from './interfaces/minio-service.interface'
 @Injectable()
 export class MinioService implements IMinioService {
   public readonly expiryTime = 60 * 15; // 15 MINUTES
-  private readonly bucketName = 'shiftscreen';
   private minioClient: Minio.Client;
+  private readonly bucketName = process.env.NODE_ENV === 'production'
+    ? 'shiftscreen'
+    : 'shiftscreen-test';
 
   constructor(
     private readonly configService: ConfigService,

@@ -15,6 +15,8 @@ export class Token extends BaseEntity {
   @Column({ type: 'datetime' })
   expiresOn: Date;
 
-  @ManyToOne(type => User, user => user.tokens)
+  @ManyToOne(type => User, user => user.tokens, {
+    onDelete: 'CASCADE'
+  })
   user: Promise<User>;
 }

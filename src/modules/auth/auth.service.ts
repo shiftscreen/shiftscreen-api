@@ -30,8 +30,10 @@ export class AuthService {
 
   async validateReCaptcha(recaptcha: string): Promise<boolean> {
     const data = {
-      secret: this.configService.get<string>('RECAPTCHA_KEY'),
       response: recaptcha,
+      secret: process.env.NODE_ENV === 'production'
+        ? this.configService.get<string>('RECAPTCHA_KEY')
+        : '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe',
     };
 
     const request = `${this.RECAPTCHA_API_URL}?secret=${data.secret}&response=${data.response}`;

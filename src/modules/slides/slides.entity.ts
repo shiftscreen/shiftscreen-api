@@ -44,7 +44,9 @@ export class Slide extends BaseEntity {
   appInstanceId?: number;
 
   @Field(type => AppInstance, { nullable: true })
-  @ManyToOne(type => AppInstance, appInstance => appInstance.slides)
+  @ManyToOne(type => AppInstance, appInstance => appInstance.slides, {
+    onDelete: 'SET NULL',
+  })
   @JoinColumn({ name: 'appInstanceId' })
   appInstance?: Promise<AppInstance>;
 
