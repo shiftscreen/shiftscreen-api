@@ -1,6 +1,6 @@
 import { Resolver, Args, Mutation, Query, Subscription } from '@nestjs/graphql';
-import { ForbiddenException, UseGuards } from '@nestjs/common';
-import { PubSub } from 'graphql-subscriptions';
+import { ForbiddenException, Inject, UseGuards } from '@nestjs/common';
+import { PubSubEngine } from 'graphql-subscriptions';
 import { Int } from 'type-graphql';
 import { isEqual } from 'lodash';
 
@@ -15,8 +15,7 @@ import { Screen } from '../screens/screens.entity';
 import { ScreensService } from '../screens/screens.service';
 import { RolesService } from '../roles/roles.service';
 import { ScreenKeyInput } from './dto/screen-key.input';
-
-const pubSub = new PubSub();
+import { PubSubIterators } from '../../constants';
 
 @Resolver(of => ScreenKey)
 export class ScreensKeysResolver {
@@ -28,28 +27,20 @@ export class ScreensKeysResolver {
 
   @Subscription(returns => ScreenKeyInput, {
     filter: (payload, variables) => (
-      isEqual(payload.screenKeyAdded, variables.screenKey)
+      isEqual(payload[PubSubIterators.SCREEN_KEY_ADDED], variables.screenKey)
     )
   })
   screenKeyAdded(
     @Args('screenKey') screenKey: ScreenKeyInput,
   ) {
-    return pubSub.asyncIterator('screenKeyAdded');
+    return this.screensKeysService.screenKeyAddedIterator();
   }
 
   @Query(returns => Screen)
   async screenByKey(
     @Args('screenKey') { screenId, privateKey, publicKey }: ScreenKeyInput,
   ): Promise<Screen> {
-    const key = await this.screensKeysService.findOneByConditions({
-      where: {
-        privateKey,
-        screen: {
-          id: screenId,
-        }
-      },
-      relations: ['screen'],
-    });
+    const key = await this.screensKeysService.findOneByPrivateKeyAndScreenId(privateKey, screenId);
     const screen = await key?.screen;
 
     if (!key || screen.publicKey !== publicKey) {
@@ -81,12 +72,13 @@ export class ScreensKeysResolver {
 
     const screenKey = createEntityInstance<ScreenKey>(ScreenKey, screenKeyData);
     const createdKey = await this.screensKeysService.create(screenKey);
+
     const subscriptionPayload: ScreenKeyInput = {
       privateKey,
       publicKey: screen.publicKey,
       screenId: screen.id,
     };
-    await pubSub.publish('screenKeyAdded', { screenKeyAdded: subscriptionPayload });
+    await this.screensKeysService.screenKeyAddedPublish(subscriptionPayload);
 
     return createdKey;
   }

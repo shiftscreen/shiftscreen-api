@@ -5,6 +5,15 @@ export const ErrorsMessages = {
   WRONG_SLIDE_SCREEN: 'Slide has not been connected to this screen',
 };
 
-export const COOKIES = {
+export const Cookies = {
   REFRESH_TOKEN: 'Authentication',
+};
+
+export const PubSubIterators = {
+  SCREEN_KEY_ADDED: 'screenKeyAdded',
+  SCREEN_UPDATED: 'screenUpdated',
+};
+
+export const Providers = {
+  PUB_SUB: 'PUB_SUB',
 };

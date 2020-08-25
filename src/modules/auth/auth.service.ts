@@ -13,7 +13,7 @@ import { TokenType } from './enums/token-type.enum';
 import { Token } from './entities/token.entity';
 import { createEntityInstance } from '../../shared/utils/create-entity-instance.util';
 import { TokenResponse } from './entities/access-token-response.entity';
-import { COOKIES } from '../../constants';
+import { Cookies } from '../../constants';
 
 @Injectable()
 export class AuthService {
@@ -91,7 +91,7 @@ export class AuthService {
     const refreshExpiresIn = this.configService.get<number>('jwt.refreshExpiresIn');
     const secure = process.env.NODE_ENV === 'production' ? 'Secure;' : '';
 
-    return `${COOKIES.REFRESH_TOKEN}=${refreshToken}; HttpOnly; ${secure} Path=/; Max-Age=${refreshExpiresIn}`;
+    return `${Cookies.REFRESH_TOKEN}=${refreshToken}; HttpOnly; ${secure} Path=/; Max-Age=${refreshExpiresIn}`;
   }
 
   async findOneToken(key: string): Promise<Token> {

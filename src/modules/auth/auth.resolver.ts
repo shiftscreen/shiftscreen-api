@@ -12,7 +12,7 @@ import { LoginInput } from './dto/login.input';
 import { AuthService } from './auth.service';
 import { Token } from './entities/token.entity';
 import { TokenResponse } from './entities/access-token-response.entity';
-import { COOKIES } from '../../constants';
+import { Cookies } from '../../constants';
 
 @Resolver(of => Token)
 export class AuthResolver {
@@ -44,7 +44,7 @@ export class AuthResolver {
   async refreshToken(
     @Context() context: any,
   ): Promise<TokenResponse> {
-    const key = context.req.cookies?.[COOKIES.REFRESH_TOKEN];
+    const key = context.req.cookies?.[Cookies.REFRESH_TOKEN];
     if (!key) {
       throw new BadRequestException();
     }
@@ -63,7 +63,7 @@ export class AuthResolver {
   async revokeToken(
     @Context() context: any,
   ): Promise<boolean> {
-    const key = context.req.cookies?.[COOKIES.REFRESH_TOKEN];
+    const key = context.req.cookies?.[Cookies.REFRESH_TOKEN];
     if (!key) {
       throw new BadRequestException();
     }
@@ -73,7 +73,7 @@ export class AuthResolver {
       throw new ForbiddenException();
     }
 
-    context.res.clearCookie(COOKIES.REFRESH_TOKEN);
+    context.res.clearCookie(Cookies.REFRESH_TOKEN);
 
     const deleteResults = await this.authService.deleteOneTokenById(token.id);
     return deleteResults.affected && deleteResults.affected > 0;

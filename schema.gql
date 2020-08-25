@@ -87,7 +87,10 @@ type Mutation {
   addSlide(newSlideData: NewSlideInput!): Slide!
   updateSlide(updateSlideData: UpdateSlideInput!, id: Int!): Slide!
   deleteSlide(id: Int!): Boolean!
+  addScreenKey(privateKey: String!, screenId: Int!): ScreenKey!
+  deleteScreenKey(id: Int!): Boolean!
   addScreen(newScreenData: NewScreenInput!): Screen!
+  notifyScreenUpdated(id: Int!): Boolean!
   updateScreen(updateScreenData: UpdateScreenInput!, id: Int!): Screen!
   deleteScreen(id: Int!): Boolean!
   addFile(newFileData: NewFileInput!): File
@@ -96,8 +99,6 @@ type Mutation {
   fileLink(id: Int!): FileLink!
   addFileKey(fileId: Int!): FileKey!
   deleteFileKey(id: String!): Boolean!
-  addScreenKey(privateKey: String!, screenId: Int!): ScreenKey!
-  deleteScreenKey(id: Int!): Boolean!
 }
 
 input NewAppInstanceInput {
@@ -175,12 +176,12 @@ type Query {
   organization(id: Int!): Organization!
   appInstance(id: Int!): AppInstance!
   appInstancesByAppId(appId: String!): [AppInstance!]!
+  screenByKey(screenKey: ScreenKeyInput!): Screen!
   screen(id: Int!): Screen!
   fileKey(fileKey: FileKeyInput!): FileKey!
   calendarTodayDayNames: String!
   calendarTodayHoliday: String!
   quotePredefinedQuotes(type: PredefinedQuotesType!): [Quote!]!
-  screenByKey(screenKey: ScreenKeyInput!): Screen!
 }
 
 type Quote {
@@ -270,6 +271,7 @@ type Storage {
 
 type Subscription {
   screenKeyAdded(screenKey: ScreenKeyInput!): ScreenKeyInputSubscription!
+  screenUpdated(screenKey: ScreenKeyInput!): Screen!
 }
 
 type TokenResponse {

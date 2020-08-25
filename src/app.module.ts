@@ -20,6 +20,8 @@ import { ScreensKeysModule } from './modules/screens-keys/screens-keys.module';
 
 import typeormConfig from './config/typeorm.config';
 import graphqlConfig from './config/graphql.config';
+import { Providers } from './constants';
+import { PubSubModule } from './modules/pubsub/pubsub.module';
 
 @Module({
   imports: [
@@ -51,8 +53,10 @@ import graphqlConfig from './config/graphql.config';
     OrganizationsModule,
     UtilsModule,
     ScreensKeysModule,
+    PubSubModule
   ],
   controllers: [],
   providers: [],
+  exports: [],
 })
 export class AppModule {}

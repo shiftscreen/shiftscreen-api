@@ -1,6 +1,6 @@
-import { Args, Mutation, Parent, Query, ResolveProperty, Resolver, } from '@nestjs/graphql';
+import { Args, Mutation, Parent, Query, ResolveProperty, Resolver, Subscription, } from '@nestjs/graphql';
 import { ForbiddenException, forwardRef, Inject, UseGuards } from '@nestjs/common';
-import { Int } from 'type-graphql';
+import { Int, PubSubEngine } from 'type-graphql';
 
 import { CurrentUser } from '../../shared/decorators/current-user.decorator';
 import { GqlAuthGuard } from '../../shared/guards/gql-auth.guard';
@@ -18,8 +18,10 @@ import { User } from '../users/users.entity';
 import { Role } from '../roles/roles.entity';
 import { getFinalSlides } from './utils/get-final-slides';
 import { generateRandomKey } from './utils/generate-random-key';
+import { ScreenKeyInput } from '../screens-keys/dto/screen-key.input';
+import { PubSubIterators } from '../../constants';
+import { ScreensKeysService } from '../screens-keys/screens-keys.service';
 
-@UseGuards(GqlAuthGuard)
 @Resolver(of => Screen)
 export class ScreensResolver {
   constructor(
@@ -27,11 +29,36 @@ export class ScreensResolver {
     private readonly slidesService: SlidesService,
     private readonly organizationsService: OrganizationsService,
     private readonly appsInstancesService: AppsInstancesService,
+    private readonly screensKeysService: ScreensKeysService,
 
     @Inject(forwardRef(() => RolesService))
     private readonly rolesService: RolesService,
   ) {}
 
+  @Subscription(returns => Screen, {
+    async filter(this: ScreensResolver, payload, variables) {
+      const payloadScreenId = payload[PubSubIterators.SCREEN_UPDATED].id;
+      const { screenId, privateKey, publicKey } = variables.screenKey;
+      const key = await this.screensKeysService.findOneByPrivateKeyAndScreenId(privateKey, screenId);
+      const screen = await key?.screen;
+
+      return !(!key || screen.publicKey !== publicKey || payloadScreenId !== screenId);
+    },
+    async resolve(this: ScreensResolver, value, args) {
+      const { screenId } = args.screenKey;
+      return this.screensService.findOneByIdWithRelations(screenId, [
+        'slides',
+        'slides.appInstance',
+      ]);
+    }
+  })
+  screenUpdated(
+    @Args('screenKey') screenKey: ScreenKeyInput,
+  ) {
+    return this.screensService.screenUpdatedIterator();
+  }
+
+  @UseGuards(GqlAuthGuard)
   @Query(returns => Screen)
   async screen(
     @CurrentUser() currentUser: User,
@@ -47,6 +74,7 @@ export class ScreensResolver {
     return screen;
   }
 
+  @UseGuards(GqlAuthGuard)
   @Mutation(returns => Screen)
   async addScreen(
     @CurrentUser() currentUser: User,
@@ -70,6 +98,24 @@ export class ScreensResolver {
     return this.screensService.create(screen);
   }
 
+  @UseGuards(GqlAuthGuard)
+  @Mutation(returns => Boolean)
+  async notifyScreenUpdated(
+    @CurrentUser() currentUser: User,
+    @Args({ name: 'id', type: () => Int }) id: number,
+  ): Promise<boolean> {
+    const screen = await this.screensService.findOneByIdWithRelations(id, ['organization']);
+    const currentOrganizationUserRole = await this.rolesService.findOneUserRole(currentUser, await screen.organization);
+
+    if (!currentOrganizationUserRole.isAdmin()) {
+      throw new ForbiddenException();
+    }
+
+    await this.screensService.screenUpdatedPublish({ id });
+    return true;
+  }
+
+  @UseGuards(GqlAuthGuard)
   @Mutation(returns => Screen)
   async updateScreen(
     @CurrentUser() currentUser: User,
@@ -109,6 +155,7 @@ export class ScreensResolver {
     return this.screensService.saveOne(updatedScreen);
   }
 
+  @UseGuards(GqlAuthGuard)
   @Mutation(returns => Boolean)
   async deleteScreen(
     @CurrentUser() currentUser: User,
