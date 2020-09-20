@@ -11,13 +11,15 @@ import { LocalStrategy } from './strategies/local.strategy';
 
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { Token } from './entities/token.entity';
+import { EmailConfirm } from './entities/email-confirm.entity';
+import { PasswordReset } from './entities/password-reset.entity';
 import jwtConfig from '../../config/jwt.config';
 
 @Module({
   imports: [
     HttpModule,
     PassportModule,
-    TypeOrmModule.forFeature([Token]),
+    TypeOrmModule.forFeature([Token, EmailConfirm, PasswordReset]),
     ConfigModule.forFeature(jwtConfig),
     forwardRef(() => UsersModule),
     JwtModule.registerAsync({

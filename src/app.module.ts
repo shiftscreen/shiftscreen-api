@@ -2,6 +2,9 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { GraphQLModule } from '@nestjs/graphql';
+import { ScheduleModule } from '@nestjs/schedule';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
 
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -20,7 +23,7 @@ import { ScreensKeysModule } from './modules/screens-keys/screens-keys.module';
 
 import typeormConfig from './config/typeorm.config';
 import graphqlConfig from './config/graphql.config';
-import { Providers } from './constants';
+import mailConfig from './config/mail.config';
 import { PubSubModule } from './modules/pubsub/pubsub.module';
 
 @Module({
@@ -39,7 +42,25 @@ import { PubSubModule } from './modules/pubsub/pubsub.module';
       ),
       inject: [ConfigService],
     }),
+    MailerModule.forRootAsync({
+      imports: [ConfigModule.forFeature(mailConfig)],
+      useFactory: async (configService: ConfigService) => ({
+        transport: configService.get('mail.transport'),
+        defaults: {
+          from:'"shiftscreen" <noreply@shiftscreen.pl>',
+        },
+        template: {
+          dir: __dirname + '/templates',
+          adapter: new PugAdapter(),
+          options: {
+            strict: true,
+          },
+        },
+      }),
+      inject: [ConfigService],
+    }),
     ConfigModule.forRoot(),
+    ScheduleModule.forRoot(),
     AuthModule,
     UsersModule,
     RolesModule,

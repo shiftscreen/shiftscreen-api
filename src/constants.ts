@@ -3,6 +3,7 @@ export const ErrorsMessages = {
   ROLE_EXISTS: 'Role exists.',
   LAST_ADMIN_ROLE: 'Organization must have at least one administrator.',
   WRONG_SLIDE_SCREEN: 'Slide has not been connected to this screen',
+  EMAIL_NOT_VERIFIED: 'User has not verified email',
 };
 
 export const Cookies = {

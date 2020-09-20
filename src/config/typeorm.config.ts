@@ -11,6 +11,8 @@ import { AppInstance } from '../modules/apps-instances/apps-instances.entity';
 import { Organization } from '../modules/organizations/organizations.entity';
 import { Token } from '../modules/auth/entities/token.entity';
 import { ScreenKey } from '../modules/screens-keys/screens-keys.entity';
+import { EmailConfirm } from '../modules/auth/entities/email-confirm.entity';
+import { PasswordReset } from '../modules/auth/entities/password-reset.entity';
 
 export default registerAs('typeorm', () => ({
   type: process.env.DATABASE_TYPE,
@@ -31,6 +33,8 @@ export default registerAs('typeorm', () => ({
     Organization,
     Token,
     ScreenKey,
+    EmailConfirm,
+    PasswordReset,
   ],
   synchronize: true,
   logging: process.env.NODE_ENV !== 'production'

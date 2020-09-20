@@ -20,6 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@nestjs-modules/mailer": "^1.5.1",
     "@nestjs/common": "^6.10.14",
     "@nestjs/config": "^0.2.2",
     "@nestjs/core": "^6.10.14",
@@ -27,6 +28,7 @@
     "@nestjs/jwt": "^6.1.1",
     "@nestjs/passport": "^6.1.1",
     "@nestjs/platform-express": "^6.10.14",
+    "@nestjs/schedule": "^0.4.0",
     "@nestjs/typeorm": "^6.2.0",
     "@nestjsplus/cookies": "^1.1.1",
     "@types/body-parser": "^1.19.0",
@@ -54,9 +56,11 @@
     "multer": "^1.4.2",
     "multer-s3": "^2.9.0",
     "mysql": "^2.18.1",
+    "nodemailer": "^6.4.11",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
+    "pug": "^3.0.0",
     "rand-token": "^1.0.1",
     "randomstring": "^1.1.5",
     "reflect-metadata": "^0.1.13",

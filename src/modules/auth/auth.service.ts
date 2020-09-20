@@ -1,8 +1,10 @@
 import { HttpService, Injectable } from '@nestjs/common';
+import { Cron } from '@nestjs/schedule';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeleteResult, Repository } from 'typeorm';
+import { MailerService } from '@nestjs-modules/mailer';
+import { DeleteResult, ObjectType, Repository } from 'typeorm';
 import * as randToken from 'rand-token';
 import * as dayjs from 'dayjs';
 
@@ -14,6 +16,8 @@ import { Token } from './entities/token.entity';
 import { createEntityInstance } from '../../shared/utils/create-entity-instance.util';
 import { TokenResponse } from './entities/access-token-response.entity';
 import { Cookies } from '../../constants';
+import { EmailConfirm } from './entities/email-confirm.entity';
+import { PasswordReset } from './entities/password-reset.entity';
 
 @Injectable()
 export class AuthService {
@@ -22,10 +26,18 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly httpService: HttpService,
+    private readonly mailerService: MailerService,
 
     @InjectRepository(Token)
     private readonly tokensRepository: Repository<Token>,
+
+    @InjectRepository(EmailConfirm)
+    private readonly emailConfirmsRepository: Repository<EmailConfirm>,
+
+    @InjectRepository(PasswordReset)
+    private readonly passwordResetsRepository: Repository<PasswordReset>,
   ) {}
+
   private readonly RECAPTCHA_API_URL = 'https://www.google.com/recaptcha/api/siteverify';
 
   async validateReCaptcha(recaptcha: string): Promise<boolean> {
@@ -107,5 +119,23 @@ export class AuthService {
 
   async deleteOneTokenById(id: string | number): Promise<DeleteResult> {
     return this.tokensRepository.delete(id);
+  }
+
+  @Cron('0 */2 * * *')
+  async handleCleanup() {
+    const cleanup = async <T>(repository: Repository<T>, entityTarget: ObjectType<T>) => (
+      repository
+        .createQueryBuilder()
+        .delete()
+        .from(entityTarget)
+        .where("expiresOn < NOW()")
+        .execute()
+    );
+
+    return Promise.all([
+      cleanup(this.tokensRepository, Token),
+      cleanup(this.passwordResetsRepository, PasswordReset),
+      cleanup(this.emailConfirmsRepository, EmailConfirm),
+    ]);
   }
 }

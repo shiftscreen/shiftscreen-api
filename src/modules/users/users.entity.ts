@@ -14,6 +14,8 @@ import { BaseEntity } from '../../shared/base/base.entity';
 import * as bcrypt from 'bcrypt';
 import { AppInstance } from '../apps-instances/apps-instances.entity';
 import { Token } from '../auth/entities/token.entity';
+import { PasswordReset } from '../auth/entities/password-reset.entity';
+import { EmailConfirm } from '../auth/entities/email-confirm.entity';
 
 @Entity({ name: 'users' })
 @ObjectType()
@@ -34,6 +36,9 @@ export class User extends BaseEntity {
 
   @Column()
   password: string;
+
+  @Column({ type: 'boolean', default: false })
+  emailVerified: boolean;
 
   @Field()
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
@@ -68,6 +73,16 @@ export class User extends BaseEntity {
     cascade: true,
   })
   tokens: Promise<Token[]>;
+
+  @OneToMany(type => PasswordReset, passwordReset => passwordReset.user, {
+    cascade: true,
+  })
+  passwordResets: Promise<PasswordReset[]>;
+
+  @OneToMany(type => EmailConfirm, emailConfirm => emailConfirm.user, {
+    cascade: true,
+  })
+  emailConfirms: Promise<EmailConfirm[]>;
 
   hidePassword(): void {
     this.password = undefined;

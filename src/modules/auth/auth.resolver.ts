@@ -12,7 +12,7 @@ import { LoginInput } from './dto/login.input';
 import { AuthService } from './auth.service';
 import { Token } from './entities/token.entity';
 import { TokenResponse } from './entities/access-token-response.entity';
-import { Cookies } from '../../constants';
+import { Cookies, ErrorsMessages } from '../../constants';
 
 @Resolver(of => Token)
 export class AuthResolver {
@@ -32,6 +32,10 @@ export class AuthResolver {
     const user = await this.authService.validateUser(loginData.email, loginData.password);
     if (!user) {
       throw new UnauthorizedException();
+    }
+
+    if (!user.emailVerified) {
+      throw new UnauthorizedException(ErrorsMessages.EMAIL_NOT_VERIFIED);
     }
 
     const cookie = await this.authService.getRefreshTokenCookie(user);
