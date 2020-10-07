@@ -35,7 +35,7 @@
     "@types/graphql-type-json": "^0.3.2",
     "@types/lodash": "^4.14.149",
     "@types/randomstring": "^1.1.6",
-    "apollo-server-express": "^2.10.0",
+    "apollo-server-express": "^2.14.2",
     "aws-sdk": "^2.617.0",
     "bcrypt": "^3.0.8",
     "class-transformer": "^0.2.3",
