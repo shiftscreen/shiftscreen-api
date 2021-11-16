@@ -36,7 +36,7 @@
     "@types/lodash": "^4.14.149",
     "@types/randomstring": "^1.1.6",
     "apollo-server-express": "^2.10.0",
-    "aws-sdk": "^2.617.0",
+    "aws-sdk": "^2.814.0",
     "bcrypt": "^3.0.8",
     "class-transformer": "^0.2.3",
     "compression": "^1.7.4",
