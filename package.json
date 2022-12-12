@@ -27,7 +27,7 @@
     "@nestjs/graphql": "^6.5.4",
     "@nestjs/jwt": "^6.1.1",
     "@nestjs/passport": "^6.1.1",
-    "@nestjs/platform-express": "^6.10.14",
+    "@nestjs/platform-express": "^9.2.1",
     "@nestjs/schedule": "^0.4.0",
     "@nestjs/typeorm": "^6.2.0",
     "@nestjsplus/cookies": "^1.1.1",
